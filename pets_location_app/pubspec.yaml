@@ -1,0 +1,54 @@
+name: pets_location_app
+description: "A new Flutter project."
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.8.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  google_maps_flutter: ^2.5.3
+  google_maps_flutter_web: ^0.5.4+2
+
+  # WebSockets
+  web_socket_channel: ^2.4.0
+  stomp_dart_client: ^0.4.4
+
+  # Íconos de Cupertino
+  cupertino_icons: ^1.0.8
+
+  # HTTP
+  dio: ^5.4.0
+
+  # Almacenamiento seguro (para JWT)
+  flutter_secure_storage: ^9.0.0
+
+  # Navegación avanzada
+  go_router: ^13.0.0
+
+  # Gestión de estado reactivo
+  flutter_riverpod: ^2.6.1
+
+  # JSON (lo usaremos más adelante)
+  json_annotation: ^4.9.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^5.0.0
+
+  # Generadores de código para JSON
+  build_runner: ^2.4.0
+  json_serializable: ^6.7.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/pets_welcome.png
+    - assets/images/homepage.png
