@@ -51,6 +51,11 @@ public class SecurityConfig {
                             .requestMatchers(HttpMethod.GET, "/devices/**").permitAll()
                             .requestMatchers(HttpMethod.POST, "/devices/**").permitAll()
                             .requestMatchers(HttpMethod.DELETE, "/devices/**").permitAll()
+                            // NEWS
+                            .requestMatchers(HttpMethod.GET, "/news/**").permitAll()
+                            .requestMatchers(HttpMethod.PUT, "/news/**").permitAll()
+                            .requestMatchers(HttpMethod.POST, "/news/**").permitAll()
+                            .requestMatchers(HttpMethod.DELETE, "/news/**").permitAll()
                             // WEBSOCKETS
                             .requestMatchers(HttpMethod.GET, "/**").permitAll()
                             // Acceso general a reservas para ADMIN y CUSTOMER

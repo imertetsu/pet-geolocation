@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pets_location_app/presentation/pages/news/news_feed_page.dart';
 import 'pets/pet_list_page.dart';
 import 'pets/map_pet_page.dart';
 import '../../presentation/pages/welcome_page.dart';
@@ -21,7 +22,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _pages = [
-      const _FeedPlaceholderPage(),
+      NewsFeedPage(userId: widget.userId),
       PetListPage(userId: widget.userId),
       PetMapPage(userId: widget.userId),
     ];
@@ -85,18 +86,3 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-// Placeholder para el feed futuro
-class _FeedPlaceholderPage extends StatelessWidget {
-  const _FeedPlaceholderPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        '¡Bienvenido! Próximamente verás publicaciones de mascotas aquí.',
-        textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 18),
-      ),
-    );
-  }
-}

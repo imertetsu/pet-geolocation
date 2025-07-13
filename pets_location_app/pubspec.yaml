@@ -50,5 +50,16 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/images/pets_welcome.png
+    - assets/images/cat.png
     - assets/images/homepage.png
+    - assets/icons/missing_pet.png
+    - assets/icons/searching_home.png
+    - assets/icons/pet_found.png
+    - assets/icons/pet_store.png
+    - assets/icons/pet_events.png
+    - assets/icons/pet_advices.png
+    - assets/icons/pet_health.png
+    - assets/icons/award_pet.png
+    - assets/icons/pet_service.png
+    - assets/icons/pet_happy_stories.png
+    - assets/icons/pet_alert.png

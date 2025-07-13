@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../data/models/pet.dart';
-import '../pages/devices/associate_device_page.dart';
+import '../../../data/models/pet.dart';
 
 class PetCard extends StatelessWidget {
   final Pet pet;

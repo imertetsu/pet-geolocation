@@ -1,2 +1,7 @@
-package com.pets.domain.model;public enum ReactionType {
+package com.pets.domain.model;
+
+public enum ReactionType {
+    LIKE,
+    SAD,
+    HOPE
 }

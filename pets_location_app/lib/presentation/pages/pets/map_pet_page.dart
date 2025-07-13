@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:dio/dio.dart';
+import 'package:pets_location_app/core/network/api_client.dart';
 import '../../../data/models/pet.dart';
 import '../../../data/datasources/pet_remote_datasource.dart';
 import '../../../data/datasources/device_remote_datasource.dart';
@@ -17,7 +18,7 @@ class PetMapPage extends StatefulWidget {
 }
 
 class _PetMapPageState extends State<PetMapPage> {
-  final Dio _dio = Dio(BaseOptions(baseUrl: 'http://localhost:8080/api'));
+  final Dio _dio = ApiClient.dio;
   late final PetRemoteDataSource _petRemote;
   late final DeviceRemoteDataSource _deviceRemote;
   late final LocationRemoteDataSource _locationRemote;

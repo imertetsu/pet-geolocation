@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:pets_location_app/core/network/api_client.dart';
 
 class AssociateDevicePage extends StatefulWidget {
   final int petId;
@@ -12,7 +13,7 @@ class AssociateDevicePage extends StatefulWidget {
 
 class _AssociateDevicePageState extends State<AssociateDevicePage> {
   final _deviceIdController = TextEditingController();
-  final Dio _dio = Dio(BaseOptions(baseUrl: 'http://localhost:8080/api'));
+  final Dio _dio = ApiClient.dio;
   bool _loading = false;
   String? _error;
 

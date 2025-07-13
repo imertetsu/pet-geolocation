@@ -1,11 +1,12 @@
 import 'package:dio/dio.dart';
+import 'package:pets_location_app/core/network/api_client.dart';
 import '../models/register_request.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/login_request.dart';
 import '../models/login_response.dart';
 
 class AuthRemoteDataSource {
-  final Dio _dio = Dio(BaseOptions(baseUrl: 'http://localhost:8080/api'));
+  final Dio _dio = ApiClient.dio;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   Future<void> register(RegisterRequest request) async {

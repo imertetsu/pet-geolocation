@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:pets_location_app/core/network/api_client.dart';
 import '../../../data/models/pet.dart';
 import '../../../data/datasources/pet_remote_datasource.dart';
 import '../../../data/datasources/device_remote_datasource.dart';
-import '../../widgets/pet_card.dart';
+import '../../widgets/pet/pet_card.dart';
 import 'register_pet_page.dart';
 import '../devices/associate_device_page.dart';
 
@@ -17,7 +18,7 @@ class PetListPage  extends StatefulWidget {
 }
 
 class _PetListPageState extends State<PetListPage> {
-  final Dio _dio = Dio(BaseOptions(baseUrl: 'http://localhost:8080/api'));
+  final Dio _dio = ApiClient.dio;
   late final PetRemoteDataSource _petRemote;
   late final DeviceRemoteDataSource _deviceRemote;
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:pets_location_app/core/network/api_client.dart';
 import '../../../../data/models/pet.dart';
 import '../../../../data/datasources/pet_remote_datasource.dart';
 
@@ -22,7 +23,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
   DateTime? _selectedDate;
   bool _loading = false;
 
-  final Dio _dio = Dio(BaseOptions(baseUrl: 'http://localhost:8080/api'));
+  final Dio _dio = ApiClient.dio;
   late final PetRemoteDataSource _petRemote;
 
   @override
