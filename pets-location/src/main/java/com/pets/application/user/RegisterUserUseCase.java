@@ -39,7 +39,6 @@ public class RegisterUserUseCase {
         List<UserRole> roles = new ArrayList<>();
         for (String roleName : roleNames) {
             UserRole role = new UserRole();
-            role.setUserId(userId);
             role.setRole(roleName);
             role.setGrantedDate(LocalDateTime.now());
             roles.add(role);
