@@ -2,6 +2,7 @@ package com.pets.infrastructure.controllers;
 
 import com.pets.application.user.DeleteUserByIdUseCase;
 import com.pets.application.user.GetAllUsersUseCase;
+import com.pets.application.user.GetUserByIdUseCase;
 import com.pets.application.user.RegisterUserUseCase;
 import com.pets.domain.model.Pet;
 import com.pets.domain.model.User;
@@ -24,17 +25,20 @@ public class UserController {
     private final PasswordService passwordService;
     private final GetAllUsersUseCase getAllUsersUseCase;
     private final DeleteUserByIdUseCase deleteUserByIdUseCase;
+    private final GetUserByIdUseCase getUserByIdUseCase;
 
     @Autowired
     public UserController(
             RegisterUserUseCase registerUserUseCase,
             PasswordService passwordService,
             GetAllUsersUseCase getAllUsersUseCase,
-            DeleteUserByIdUseCase deleteUserByIdUseCase){
+            DeleteUserByIdUseCase deleteUserByIdUseCase,
+            GetUserByIdUseCase getUserByIdUseCase){
         this.registerUserUseCase = registerUserUseCase;
         this.passwordService = passwordService;
         this.getAllUsersUseCase = getAllUsersUseCase;
         this.deleteUserByIdUseCase = deleteUserByIdUseCase;
+        this.getUserByIdUseCase = getUserByIdUseCase;
     }
     @PostMapping()
     public ResponseEntity<UserResponse> registerUser(@RequestBody UserRequest request) {
@@ -45,16 +49,25 @@ public class UserController {
                 encodedPassword,
                 request.roles()
         );
-        return ResponseEntity.status(HttpStatus.CREATED).body(new UserResponse(user.getId(), user.getName(), user.getEmail(), user.getIsVerified(), user.getRoles(), user.getPets()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new UserResponse(user.getId(), user.getName(), user.getEmail(), user.getIsVerified(), user.getPhotoUrl(), user.getProvider(), user.getRoles(), user.getPets()));
     }
 
     @GetMapping
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         List<User> users = getAllUsersUseCase.execute();
         List<UserResponse> response = users.stream()
-                .map(u -> new UserResponse(u.getId(), u.getName(), u.getEmail(), u.getIsVerified(), u.getRoles(), u.getPets()))
+                .map(u -> new UserResponse(u.getId(), u.getName(), u.getEmail(), u.getIsVerified(), u.getPhotoUrl(), u.getProvider(), u.getRoles(), u.getPets()))
                 .toList();
         return ResponseEntity.ok(response);
+    }
+    @GetMapping("/{userId}")
+    public ResponseEntity<User> getUserById(@PathVariable UUID userId) {
+        try {
+            User user = getUserByIdUseCase.execute(userId);
+            return ResponseEntity.ok(user);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @DeleteMapping("/{id}")

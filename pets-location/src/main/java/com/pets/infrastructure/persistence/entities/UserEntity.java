@@ -30,10 +30,17 @@ public class UserEntity {
     @Column(unique = true, length = 100, nullable = false)
     private String email;
 
-    @Column(nullable = false, length = 200)
+    @Column(nullable = true, length = 200)
     private String password;
 
     private Boolean isVerified;
+
+    @Column(name = "photo_url")
+    private String photoUrl;
+
+    @Enumerated(EnumType.STRING)
+    private AuthProvider provider; // Enum: LOCAL, GOOGLE, FACEBOOK
+    private String providerId;     // El ID de Google o Facebook
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<UserRoleEntity> roles;

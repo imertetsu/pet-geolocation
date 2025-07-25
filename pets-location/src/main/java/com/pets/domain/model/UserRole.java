@@ -13,7 +13,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserRole {
-    private UUID userId;
     private String role;
     private LocalDateTime grantedDate;
 }

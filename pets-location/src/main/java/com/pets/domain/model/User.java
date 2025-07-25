@@ -1,5 +1,6 @@
 package com.pets.domain.model;
 
+import com.pets.infrastructure.persistence.entities.AuthProvider;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,9 @@ public class User {
     private String email;
     private String password;
     private Boolean isVerified;
+    private String photoUrl;
+    private AuthProvider provider;
+    private String providerId;
     private List<UserRole> roles;
     private List<Pet> pets;
 }

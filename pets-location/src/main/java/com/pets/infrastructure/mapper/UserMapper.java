@@ -19,6 +19,9 @@ public class UserMapper {
         user.setEmail(entity.getEmail());
         user.setPassword(entity.getPassword());
         user.setIsVerified(entity.getIsVerified());
+        user.setPhotoUrl(entity.getPhotoUrl());
+        user.setProvider(entity.getProvider());
+        user.setProviderId(entity.getProviderId());
 
         // Convertir roles si existen
         if (entity.getRoles() != null) {
@@ -33,7 +36,6 @@ public class UserMapper {
                     .map(PetMapper::toDomain)
                     .collect(Collectors.toList()));
         }
-
         return user;
     }
 
@@ -41,17 +43,19 @@ public class UserMapper {
         if (domain == null) return null;
 
         UserEntity entity = new UserEntity();
-        entity.setId(domain.getId());
         entity.setName(domain.getName());
         entity.setEmail(domain.getEmail());
         entity.setPassword(domain.getPassword());
         entity.setIsVerified(domain.getIsVerified());
+        entity.setPhotoUrl(domain.getPhotoUrl());
+        entity.setProvider(domain.getProvider());
+        entity.setProviderId(domain.getProviderId());
 
         if (domain.getRoles() != null) {
             List<UserRoleEntity> roles = domain.getRoles().stream()
-                    .map(UserRoleMapper::toEntity)
+                    .map(role -> UserRoleMapper.toEntity(role, entity))
                     .toList();
-            entity.setRoles(roles); // ✅ esto es CRUCIAL
+            entity.setRoles(roles); //
         }
 
         // pets también si aplican
@@ -61,7 +65,6 @@ public class UserMapper {
                     .toList();
             entity.setPets(pets);
         }
-
         return entity;
     }
 }
