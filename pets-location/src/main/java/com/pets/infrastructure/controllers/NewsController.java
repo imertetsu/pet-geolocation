@@ -32,6 +32,7 @@ public class NewsController {
     private final DeleteReactionUseCase deleteReactionUseCase;
     private final GetUserReactionUseCase getUserReactionUseCase;
     private final DeleteNewsPostUseCase deleteNewsPostUseCase;
+    private final GetNewsPostByIdUseCase getNewsPostByIdUseCase;
 
     // 1. Obtener publicaciones (con filtros opcionales)
     @GetMapping
@@ -128,6 +129,16 @@ public class NewsController {
     public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
         deleteNewsPostUseCase.execute(postId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{postId}")
+    public ResponseEntity<NewsPost> getNewsPostById(@PathVariable Long postId) {
+        try {
+            NewsPost post = getNewsPostByIdUseCase.execute(postId);
+            return ResponseEntity.ok(post);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     // DTO auxiliar para crear publicaciones
