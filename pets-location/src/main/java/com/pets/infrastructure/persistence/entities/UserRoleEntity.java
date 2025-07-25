@@ -16,10 +16,11 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 public class UserRoleEntity {
-
     @Id
-    @Column(name = "user_id")
-    private UUID userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity user;
 
     @Id
     @Column(nullable = false, length = 20)
@@ -28,9 +29,6 @@ public class UserRoleEntity {
     @Column(name = "granted_date", nullable = false)
     private LocalDateTime grantedDate = LocalDateTime.now();
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
-    @JoinColumn(name = "user_id", insertable = false, updatable = false)
-    private UserEntity user;
+
 
 }
