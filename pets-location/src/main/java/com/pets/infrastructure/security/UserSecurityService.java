@@ -34,9 +34,14 @@ public class UserSecurityService implements UserDetailsService {
                 .map(UserRoleEntity::getRole)
                 .toArray(String[]::new);
 
+        String password = userEntity.getPassword();
+        if (password == null) {
+            password = "{noop}firebase";
+        }
+
         return User.builder()
                 .username(userEntity.getEmail())
-                .password(userEntity.getPassword())
+                .password(password)
                 .authorities(grantedAuthorities(roles))
                 .build();
     }

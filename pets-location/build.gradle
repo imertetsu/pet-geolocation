@@ -36,6 +36,9 @@ dependencies {
 	implementation 'com.auth0:java-jwt:4.4.0'
 	//WEBSOCKETS
 	implementation 'org.springframework.boot:spring-boot-starter-websocket:3.5.3'
+	//FIREBASE AADMIN
+	implementation 'com.google.firebase:firebase-admin:9.5.0'
+
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 

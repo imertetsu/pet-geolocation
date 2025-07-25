@@ -38,7 +38,9 @@ public class SecurityConfig {
                             .requestMatchers(HttpMethod.POST,"/users").permitAll()
                             .requestMatchers(HttpMethod.GET,"/users/**").permitAll()
                             .requestMatchers(HttpMethod.DELETE, "/users/**").permitAll()
+                            .requestMatchers(HttpMethod.POST,"/auth/firebase").permitAll()
                             .requestMatchers(HttpMethod.POST,"/auth/login").anonymous()
+
                             //PETS
                             .requestMatchers(HttpMethod.GET, "/pets/**").permitAll()
                             .requestMatchers(HttpMethod.POST, "/pets/**").permitAll()
