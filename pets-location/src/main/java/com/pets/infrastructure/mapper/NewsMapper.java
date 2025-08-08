@@ -44,6 +44,8 @@ public class NewsMapper {
                 entity.getCreatedAt(),
                 entity.getAuthorId(),
                 entity.getAuthorName(),
+                entity.getCountry(),
+                entity.getCity(),
                 entity.getImages(),
                 comments,
                 reactions
@@ -59,6 +61,8 @@ public class NewsMapper {
         entity.setCreatedAt(post.getCreatedAt());
         entity.setAuthorId(post.getAuthorId());
         entity.setAuthorName(post.getAuthorName());
+        entity.setCountry(post.getCountry());
+        entity.setCity(post.getCity());
         entity.setImages(post.getImages());
 
         // Mapear comentarios
@@ -103,6 +107,8 @@ public class NewsMapper {
         dto.author = new UserDto();
         dto.author.id = post.getAuthorId();
         dto.author.name = post.getAuthorName();
+        dto.country = post.getCountry();
+        dto.city = post.getCity();
 
         dto.images = post.getImages();
 
@@ -123,6 +129,7 @@ public class NewsMapper {
                         Reaction::getType,
                         Collectors.counting()
                 ));
+
         return dto;
     }
 }

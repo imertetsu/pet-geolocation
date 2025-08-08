@@ -5,6 +5,7 @@ import com.pets.domain.repository.NewsRepository;
 import com.pets.infrastructure.mapper.NewsMapper;
 import com.pets.infrastructure.persistence.entities.NewsPostEntity;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -19,11 +20,12 @@ public class NewsRepositoryImpl implements NewsRepository {
 
     @Override
     public List<NewsPost> findAll() {
-        return jpaRepository.findAll()
+        return jpaRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"))
                 .stream()
                 .map(mapper::toDomain)
                 .toList();
     }
+
 
     @Override
     public Optional<NewsPost> findById(Long id) {

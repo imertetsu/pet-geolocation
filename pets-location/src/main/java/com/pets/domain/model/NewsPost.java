@@ -22,6 +22,8 @@ public class NewsPost {
     private LocalDateTime createdAt;
     private UUID authorId;
     private String authorName;
+    private String country;
+    private String city;
     private List<String> images;
     private List<Comment> comments;
     private List<Reaction> reactions;

@@ -18,8 +18,10 @@ public class NewsPostDto {
     public NewsCategory category;
     public LocalDateTime createdAt;
     public UserDto author;
+    public String country;
+    public String city;
     public List<String> images;
     public List<NewsCommentDto> comments;
     public Map<ReactionType, Long> reactions;
-    public String userReaction;
+    private String userReaction;
 }

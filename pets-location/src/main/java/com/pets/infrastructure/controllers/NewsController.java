@@ -39,21 +39,26 @@ public class NewsController {
     public List<NewsPostDto> getAll(
             @RequestParam(required = false) NewsCategory category,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
-            @RequestParam(required = false) UUID userId
+            @RequestParam(required = false) UUID userId,
+            @RequestParam(required = false) String country,
+            @RequestParam(required = false) String city
     ) {
-        List<NewsPostDto> newsPostDto = getNewsPosts.execute(category, fromDate)
-                .stream()
-                .map(post -> mapper.toDto(post))
-                .toList();
+        List<NewsPost> posts = getNewsPosts.execute(category, fromDate, country, city);
 
-        if (userId != null) {
-            newsPostDto.forEach(dto -> {
-                Optional<ReactionType> reaction = getUserReactionUseCase.execute(dto.getId(), userId);
-                reaction.ifPresent(rt -> dto.setUserReaction(rt.name()));
-            });
-        }
-        return newsPostDto;
+        return posts.stream()
+                .map(post -> {
+                    NewsPostDto dto = mapper.toDto(post);
+                    //En este caso utilizamos userId para asignar la reaccion del usuario (logeado) en los posts, no para filtrar
+                    if (userId != null) {
+                        getUserReactionUseCase.execute(post.getId(), userId)
+                                .ifPresent(rt -> dto.setUserReaction(rt.name()));
+                    }
+                    return dto;
+                })
+                .toList();
     }
+
+
 
     // 2. Crear una publicación
     @PostMapping
@@ -64,6 +69,8 @@ public class NewsController {
                 request.category,
                 request.authorId,
                 request.authorName,
+                request.country,
+                request.city,
                 request.images
         );
         return mapper.toDto(created);
@@ -148,6 +155,8 @@ public class NewsController {
         public NewsCategory category;
         public UUID authorId;
         public String authorName;
+        public String country;
+        public String city;
         public List<String> images;
     }
 }

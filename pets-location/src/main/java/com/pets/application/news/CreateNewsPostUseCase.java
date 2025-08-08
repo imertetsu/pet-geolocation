@@ -19,7 +19,7 @@ public class CreateNewsPostUseCase {
     }
 
     public NewsPost execute(String title, String content, NewsCategory category,
-                            UUID authorId, String authorName, List<String> images) {
+                            UUID authorId, String authorName, String country, String city, List<String> images) {
 
         NewsPost post = new NewsPost(
                 null,
@@ -29,6 +29,8 @@ public class CreateNewsPostUseCase {
                 LocalDateTime.now(),
                 authorId,
                 authorName,
+                country,
+                city,
                 images != null ? images : new ArrayList<>(),
                 new ArrayList<>(), // comentarios
                 new ArrayList<>()  // reacciones

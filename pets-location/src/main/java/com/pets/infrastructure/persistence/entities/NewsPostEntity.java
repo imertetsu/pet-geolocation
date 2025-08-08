@@ -37,6 +37,8 @@ public class NewsPostEntity {
     private UUID authorId;
 
     private String authorName;
+    private String country;
+    private String city;
 
     @ElementCollection
     @CollectionTable(name = "news_post_images", joinColumns = @JoinColumn(name = "news_post_id"))
