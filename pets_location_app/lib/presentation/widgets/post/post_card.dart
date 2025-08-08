@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:pets_location_app/data/datasources/news_remote_datasource.dart';
 import 'package:pets_location_app/data/models/post.dart';
@@ -8,16 +7,15 @@ import 'package:pets_location_app/presentation/widgets/post/post_image_carousel.
 import 'package:pets_location_app/presentation/widgets/post/post_reaction_bar.dart';
 import '../post/category_icon.dart';
 import '../post/comment_section.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class PostCard extends StatefulWidget {
   final Post post;
-  final String userId;
   final NewsRemoteDataSource dataSource;
 
   const PostCard({
     super.key,
     required this.post,
-    required this.userId,
     required this.dataSource,
   });
 
@@ -26,11 +24,27 @@ class PostCard extends StatefulWidget {
 }
 
 class _PostCardState extends State<PostCard> {
+  String? _userId;
   bool _isLoading = false;
   OverlayEntry? _overlayEntry;
   final GlobalKey _reactionKey = GlobalKey();
   Timer? _closeTimer;
   bool _showComments = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserId();
+  }
+
+  Future<void> _loadUserId() async {
+    final userId = await _secureStorage.read(key: 'userId');
+    if (mounted) {
+      setState(() => _userId = userId);
+    }
+  }
+
+  final _secureStorage = const FlutterSecureStorage();
 
   void _showReactionMenu(BuildContext context) {
     if (_overlayEntry != null || _reactionKey.currentContext == null) return;
@@ -65,6 +79,17 @@ class _PostCardState extends State<PostCard> {
     );
 
     overlay.insert(_overlayEntry!);
+  }
+  Future<void> _loadComments() async {
+    try {
+      final detailedPost = await widget.dataSource.fetchDetailedPostById(widget.post.id);
+      setState(() {
+        widget.post.comments.clear();
+        widget.post.comments.addAll(detailedPost.comments);
+      });
+    } catch (e) {
+      print("Error al cargar comentarios: $e");
+    }
   }
 
   void _startCloseTimer() {
@@ -107,21 +132,21 @@ class _PostCardState extends State<PostCard> {
       if (currentReaction == null) {
         await widget.dataSource.addReaction(
           newsId: widget.post.id,
-          userId: widget.userId,
+          userId: _userId!,
           reaction: selectedReaction,
         );
         _incrementReaction(selectedReaction);
       } else if (currentReaction == selectedReaction) {
         await widget.dataSource.deleteReaction(
           newsId: widget.post.id,
-          userId: widget.userId,
+          userId: _userId!,
         );
         _decrementReaction(selectedReaction);
         selectedReaction = '';
       } else {
         await widget.dataSource.updateReaction(
           newsId: widget.post.id,
-          userId: widget.userId,
+          userId: _userId!,
           newReaction: selectedReaction,
         );
         _decrementReaction(currentReaction);
@@ -194,39 +219,44 @@ class _PostCardState extends State<PostCard> {
               hopeCount: hopeCount,
             ),
             const Divider(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                MouseRegion(
-                  onEnter: (_) {
-                    _cancelCloseTimer();
-                    _showReactionMenu(context);
-                  },
-                  onExit: (_) => _startCloseTimer(),
-                  child: Icon(
-                    key: _reactionKey,
-                    _getIconForReaction(userReaction),
-                    color: userReaction != null ? Colors.blue : Colors.grey,
+            if (_userId != null)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  MouseRegion(
+                    onEnter: (_) {
+                      _cancelCloseTimer();
+                      _showReactionMenu(context);
+                    },
+                    onExit: (_) => _startCloseTimer(),
+                    child: GestureDetector( // 👈 esto permite reaccionar al clic
+                      onTap: () => _showReactionMenu(context),
+                      child: Icon(
+                        key: _reactionKey,
+                        _getIconForReaction(userReaction),
+                        color: userReaction != null ? Colors.blue : Colors.grey,
+                      ),
+                    ),
                   ),
-                ),
-                TextButton.icon(
-                  onPressed: () {
-                    setState(() {
-                      _showComments = !_showComments;
-                    });
-                  },
-                  icon: const Icon(Icons.comment),
-                  label: Text("(${widget.post.comments.length}) Comentar"),
-                ),
-              ],
-            ),
-            if (_showComments)
+                  TextButton.icon(
+                    onPressed: () async {
+                      setState(() {
+                        _showComments = !_showComments;
+                      });
+                      if (!_showComments) return;
+                      await _loadComments();
+                    },
+                    icon: const Icon(Icons.comment),
+                    label: Text("(${widget.post.comments.length}) Comentar"),
+                  ),
+                ],
+              ),
+            if (_showComments && _userId != null)
               CommentSection(
                 postId: widget.post.id,
-                authorId: widget.userId,
-                authorName: widget.post.authorName,
                 initialComments: widget.post.comments,
                 dataSource: widget.dataSource,
+                onCommentsUpdated: _loadComments,
               ),
           ],
         ),

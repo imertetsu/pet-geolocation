@@ -1,6 +1,6 @@
 import 'package:pets_location_app/data/models/comment.dart';
-
-class Post {
+//Made for refresh comments
+class DetailedPost {
   final int id;
   final String title;
   final String content;
@@ -11,11 +11,10 @@ class Post {
   final String country;
   final String city;
   final List<String> imageUrls;
-  final Map<String, int> reactions;
+  final List<dynamic> reactions;
   final List<Comment> comments;
-  String? userReaction;
 
-  Post({
+  DetailedPost({
     required this.id,
     required this.title,
     required this.content,
@@ -28,26 +27,24 @@ class Post {
     required this.imageUrls,
     required this.reactions,
     required this.comments,
-    this.userReaction,
   });
 
-  factory Post.fromJson(Map<String, dynamic> json) {
-    return Post(
+  factory DetailedPost.fromJson(Map<String, dynamic> json) {
+    return DetailedPost(
       id: json['id'],
       title: json['title'],
       content: json['content'],
       category: json['category'],
       createdAt: DateTime.parse(json['createdAt']),
-      authorId: json['author']['id'],       
-      authorName: json['author']['name'],
+      authorId: json['authorId'],
+      authorName: json['authorName'],
       country: json['country'],
       city: json['city'],
-      imageUrls: List<String>.from(json['images']),
-      reactions: Map<String, int>.from(json['reactions'] ?? {}),
-      comments: (json['comments'] as List<dynamic>)
+      imageUrls: List<String>.from(json['images'] ?? []),
+      reactions: json['reactions'] ?? [],
+      comments: (json['comments'] as List<dynamic>? ?? [])
           .map((c) => Comment.fromJson(c))
           .toList(),
-      userReaction: json['userReaction'],
     );
   }
 }

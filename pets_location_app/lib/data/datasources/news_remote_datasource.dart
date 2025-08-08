@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:pets_location_app/data/models/detailed_post.dart';
 import '../models/post.dart';
 
 class NewsRemoteDataSource {
@@ -6,11 +7,25 @@ class NewsRemoteDataSource {
 
   NewsRemoteDataSource(this._dio);
 
-  Future<List<Post>> fetchNews({required String userId}) async {
+  Future<List<Post>> fetchNews({
+    String? category,
+    DateTime? fromDate,
+    String? country,
+    String? city,
+    String? userId,
+  }) async {
     try {
+      final queryParams = <String, dynamic>{};
+
+      if (category != null) queryParams['category'] = category;
+      if (fromDate != null) queryParams['fromDate'] = fromDate.toIso8601String().split('T').first;
+      if (country != null) queryParams['country'] = country;
+      if (city != null) queryParams['city'] = city;
+      if (userId != null) queryParams['userId'] = userId;
+
       final response = await _dio.get(
         '/news',
-        queryParameters: {'userId': userId},
+        queryParameters: queryParams,
       );
 
       final List data = response.data;
@@ -19,6 +34,7 @@ class NewsRemoteDataSource {
       throw Exception('Error fetching news: $e');
     }
   }
+  
   Future<void> addReaction({
     required int newsId,
     required String userId,
@@ -95,6 +111,42 @@ class NewsRemoteDataSource {
       return Post.fromJson(response.data);
     } catch (e) {
       throw Exception('Error fetching post by id: $e');
+    }
+  }
+  Future<DetailedPost> fetchDetailedPostById(int postId) async {
+    try {
+      final response = await _dio.get('/news/$postId');
+      return DetailedPost.fromJson(response.data);
+    } catch (e) {
+      throw Exception('Error fetching post by id: $e');
+    }
+  }
+  Future<void> createPost({
+    required String title,
+    required String content,
+    required String category,
+    required String authorId,
+    required String authorName,
+    required String country,
+    required String city,
+    List<String> images = const [],
+  }) async {
+    try {
+      await _dio.post(
+        '/news',
+        data: {
+          'title': title,
+          'content': content,
+          'category': category,
+          'authorId': authorId,
+          'authorName': authorName,
+          'country': country,
+          'city': city,
+          'images': images,
+        },
+      );
+    } catch (e) {
+      throw Exception('Error creating post: $e');
     }
   }
 }

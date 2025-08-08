@@ -1,0 +1,224 @@
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:pets_location_app/data/datasources/news_remote_datasource.dart';
+import '../../../data/datasources/session/session_manager.dart';
+import '../../../data/models/news_category.dart';
+import '../../../core/network/api_client.dart';
+
+class CreatePostPage extends StatefulWidget {
+  const CreatePostPage({super.key});
+
+  @override
+  State<CreatePostPage> createState() => _CreatePostPageState();
+}
+
+class _CreatePostPageState extends State<CreatePostPage> {
+  final _formKey = GlobalKey<FormState>();
+  final _titleController = TextEditingController();
+  final _contentController = TextEditingController();
+  final _countryController = TextEditingController(text: 'Bolivia');
+
+  final SessionManager _sessionManager = SessionManager();
+  late final NewsRemoteDataSource _newsRemoteDataSource;
+
+  NewsCategory? _selectedCategory;
+  String? _selectedCity;
+  List<XFile> _selectedImages = [];
+
+  bool _isLoading = false;
+
+  final List<String> _boliviaCities = [
+    "La Paz",
+    "Cochabamba",
+    "Santa Cruz",
+    "Sucre",
+    "Oruro",
+    "Potosí",
+    "Tarija",
+    "Beni",
+    "Pando"
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _newsRemoteDataSource = NewsRemoteDataSource(ApiClient.dio);
+  }
+
+  Future<void> _pickImages() async {
+    final picker = ImagePicker();
+    final images = await picker.pickMultiImage();
+    if (images.isNotEmpty) {
+      setState(() {
+        _selectedImages = images;
+      });
+    }
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      // Recuperar datos de sesión
+      final userId = await _sessionManager.getUserId();
+      final userName = await _sessionManager.getUserName();
+
+      if (userId == null || userName == null) {
+        throw Exception("No hay sesión activa");
+      }
+
+      // Llamada al método createPost de tu data source
+      await _newsRemoteDataSource.createPost(
+        title: _titleController.text.trim(),
+        content: _contentController.text.trim(),
+        category: _selectedCategory!.name,
+        authorId: userId,
+        authorName: userName,
+        country: _countryController.text.trim(),
+        city: _selectedCity!,
+        images: _selectedImages.map((img) => img.path).toList(),
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Publicación creada con éxito')),
+      );
+
+      Navigator.pop(context);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Crear Publicación')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                // Título
+                TextFormField(
+                  controller: _titleController,
+                  decoration: const InputDecoration(labelText: 'Título'),
+                  validator: (value) =>
+                      value!.isEmpty ? 'El título es obligatorio' : null,
+                ),
+                const SizedBox(height: 16),
+
+                // Contenido
+                TextFormField(
+                  controller: _contentController,
+                  decoration: const InputDecoration(labelText: 'Contenido'),
+                  maxLines: 4,
+                  validator: (value) =>
+                      value!.isEmpty ? 'El contenido es obligatorio' : null,
+                ),
+                const SizedBox(height: 16),
+
+                // Categoría
+                DropdownButtonFormField<NewsCategory>(
+                  decoration: const InputDecoration(labelText: 'Categoría'),
+                  items: NewsCategory.values.map((category) {
+                    return DropdownMenuItem(
+                      value: category,
+                      child: Text(category.name.replaceAll('_', ' ')),
+                    );
+                  }).toList(),
+                  value: _selectedCategory,
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedCategory = value;
+                    });
+                  },
+                  validator: (value) =>
+                      value == null ? 'Selecciona una categoría' : null,
+                ),
+                const SizedBox(height: 16),
+
+                // País (fijo)
+                TextFormField(
+                  controller: _countryController,
+                  readOnly: true,
+                  decoration: const InputDecoration(labelText: 'País'),
+                ),
+                const SizedBox(height: 16),
+
+                // Ciudad
+                DropdownButtonFormField<String>(
+                  decoration: const InputDecoration(labelText: 'Ciudad'),
+                  items: _boliviaCities
+                      .map((city) => DropdownMenuItem(
+                            value: city,
+                            child: Text(city),
+                          ))
+                      .toList(),
+                  value: _selectedCity,
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedCity = value;
+                    });
+                  },
+                  validator: (value) =>
+                      value == null ? 'Selecciona una ciudad' : null,
+                ),
+                const SizedBox(height: 16),
+
+                // Adjuntar imágenes
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: ElevatedButton.icon(
+                    onPressed: _pickImages,
+                    icon: const Icon(Icons.image),
+                    label: const Text('Adjuntar imágenes'),
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                // Previsualización
+                if (_selectedImages.isNotEmpty)
+                  SizedBox(
+                    height: 100,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _selectedImages.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: Image.file(
+                            File(_selectedImages[index].path),
+                            width: 100,
+                            height: 100,
+                            fit: BoxFit.cover,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+
+                const SizedBox(height: 24),
+                _isLoading
+                    ? const CircularProgressIndicator()
+                    : ElevatedButton.icon(
+                        onPressed: _submit,
+                        icon: const Icon(Icons.send),
+                        label: const Text('Publicar'),
+                      ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

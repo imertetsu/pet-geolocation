@@ -7,6 +7,8 @@ import '../../../data/datasources/pet_remote_datasource.dart';
 import '../../../data/datasources/device_remote_datasource.dart';
 import '../../../data/datasources/location_remote_datasource.dart';
 import '../../../data/websocket/location_stomp_client.dart';
+import 'package:geolocator/geolocator.dart';
+import 'dart:math';
 
 class PetMapPage extends StatefulWidget {
   final String userId;
@@ -23,12 +25,13 @@ class _PetMapPageState extends State<PetMapPage> {
   late final DeviceRemoteDataSource _deviceRemote;
   late final LocationRemoteDataSource _locationRemote;
   Set<Marker> _markers = {};
-
+  BitmapDescriptor? _petIcon;
   GoogleMapController? _mapController;
   List<Pet> petsWithDevice = [];
   Pet? selectedPet;
+  LatLng? _userLocation;
+  LatLng? _petLocation;
 
-  // Cliente STOMP
   LocationStompClient? _stompClient;
 
   @override
@@ -38,6 +41,7 @@ class _PetMapPageState extends State<PetMapPage> {
     _deviceRemote = DeviceRemoteDataSource(_dio);
     _locationRemote = LocationRemoteDataSource(_dio);
     _loadPetsWithDevice();
+    _loadCustomMarkerIcon();
   }
 
   Future<void> _loadPetsWithDevice() async {
@@ -57,32 +61,101 @@ class _PetMapPageState extends State<PetMapPage> {
     });
   }
 
-  // Cargar ubicación + conectar STOMP
+  Future<void> _loadCustomMarkerIcon() async {
+    _petIcon = await BitmapDescriptor.fromAssetImage(
+      const ImageConfiguration(devicePixelRatio: 1.0),
+      'assets/images/pet_location.png',
+    );
+  }
+
+  Future<bool> _handleLocationPermission() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return false;
+      }
+    }
+    if (permission == LocationPermission.deniedForever) {
+      return false;
+    }
+    return true;
+  }
+
   Future<void> _loadAndShowLocation(Pet pet) async {
     final location = await _locationRemote.getLatestLocation(pet.id);
     if (location == null) return;
 
-    final marker = Marker(
+    final petLatLng = LatLng(location.latitude, location.longitude);
+
+    final petMarker = Marker(
       markerId: MarkerId(pet.id.toString()),
-      position: LatLng(location.latitude, location.longitude),
+      position: petLatLng,
       infoWindow: InfoWindow(title: pet.name),
+      icon: _petIcon ?? BitmapDescriptor.defaultMarker,
     );
 
-    setState(() {
-      selectedPet = pet;
-      _markers = {marker};
-    });
+    final hasPermission = await _handleLocationPermission();
+    if (!hasPermission) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Permiso de ubicación no concedido")),
+      );
+      return;
+    }
 
-    _mapController?.animateCamera(
-      CameraUpdate.newLatLng(
-        LatLng(location.latitude, location.longitude),
-      ),
-    );
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Activa la ubicación en el dispositivo")),
+      );
+      return;
+    }
 
-    // Desconectar STOMP anterior si había
+    try {
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      ).timeout(const Duration(seconds: 10));
+
+      final userLatLng = LatLng(position.latitude, position.longitude);
+
+      final userMarker = Marker(
+        markerId: const MarkerId('user'),
+        position: userLatLng,
+        infoWindow: const InfoWindow(title: 'Tu ubicación'),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+      );
+
+      setState(() {
+        selectedPet = pet;
+        _petLocation = petLatLng;
+        _userLocation = userLatLng;
+        _markers = {petMarker, userMarker};
+      });
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_mapController != null) {
+          final bounds = LatLngBounds(
+            southwest: LatLng(
+              min(userLatLng.latitude, petLatLng.latitude),
+              min(userLatLng.longitude, petLatLng.longitude),
+            ),
+            northeast: LatLng(
+              max(userLatLng.latitude, petLatLng.latitude),
+              max(userLatLng.longitude, petLatLng.longitude),
+            ),
+          );
+          _mapController!.animateCamera(
+            CameraUpdate.newLatLngBounds(bounds, 100),
+          );
+        }
+      });
+
+    } catch (e) {
+      print("Error al obtener la ubicación del usuario: $e");
+    }
+
     _stompClient?.disconnect();
 
-    // Conectar STOMP para esta mascota
     _stompClient = LocationStompClient();
     _stompClient!.connect(
       petId: pet.id,
@@ -91,10 +164,15 @@ class _PetMapPageState extends State<PetMapPage> {
           markerId: MarkerId(pet.id.toString()),
           position: LatLng(lat, lon),
           infoWindow: InfoWindow(title: pet.name),
+          icon: _petIcon ?? BitmapDescriptor.defaultMarker,
         );
 
+        final updatedMarkers = Set<Marker>.from(_markers)
+          ..removeWhere((m) => m.markerId.value == pet.id.toString())
+          ..add(liveMarker);
+
         setState(() {
-          _markers = {liveMarker};
+          _markers = updatedMarkers;
         });
 
         _mapController?.animateCamera(
@@ -104,7 +182,6 @@ class _PetMapPageState extends State<PetMapPage> {
     );
   }
 
-  // Liberar recursos
   @override
   void dispose() {
     _stompClient?.disconnect();
@@ -144,10 +221,12 @@ class _PetMapPageState extends State<PetMapPage> {
           Expanded(
             child: GoogleMap(
               initialCameraPosition: const CameraPosition(
-                target: LatLng(-17.7833, -63.1833), // Coordenada por defecto
+                target: LatLng(-17.7833, -63.1833),
                 zoom: 12,
               ),
-              onMapCreated: (controller) => _mapController = controller,
+              onMapCreated: (controller) {
+                _mapController = controller;
+              },
               markers: _markers,
             ),
           ),

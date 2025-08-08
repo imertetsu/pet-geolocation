@@ -12,7 +12,7 @@ class LocationStompClient {
   }) {
     _client = StompClient(
       config: StompConfig(
-        url: 'ws://localhost:8080/api/ws-location', // o tu IP si estás en otra red
+        url: 'ws://10.0.2.2:8080/api/ws-location',
         onConnect: (StompFrame frame) {
           _client?.subscribe(
             destination: '/topic/location/$petId',
