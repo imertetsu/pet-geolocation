@@ -49,4 +49,17 @@ public class ImageStorageService {
         // Retornar URL pública
         return baseUrl + "/images/" + userId + "/" + newFileName;
     }
+
+    public void deleteFile(String fileUrl) throws IOException {
+        if (fileUrl == null || fileUrl.isEmpty()) {
+            return;
+        }
+
+        // Ejemplo: http://10.0.2.2:9090/images/user123/file.png
+        String relativePath = fileUrl.replace("http://10.0.2.2:9090/images/", "");
+        Path targetPath = Paths.get(uploadDir).resolve(relativePath);
+
+        Files.deleteIfExists(targetPath);
+    }
+
 }

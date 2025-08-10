@@ -23,4 +23,12 @@ class ApiFiles {
         handler.next(e);
       },
     ));
+
+    static final Dio dioToGetDelete = Dio(
+    BaseOptions(
+      baseUrl: baseUrl,
+      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 10),
+    ),
+  );
 }

@@ -6,6 +6,7 @@ import 'package:http_parser/http_parser.dart';
 
 class FileRemoteDataSource {
   final Dio _dio = ApiFiles.dio;
+  final Dio _dioToGetDelete = ApiFiles.dioToGetDelete;
 
   /// Sube una imagen o video al servidor y retorna la URL devuelta por el backend
   Future<String> uploadFile({
@@ -34,5 +35,19 @@ class FileRemoteDataSource {
     );
 
     return response.data as String; // URL devuelta por el backend
+  }
+
+    /// Elimina un archivo del servidor a partir de su URL
+  Future<bool> deleteFile(String fileUrl) async {
+    try {
+      final response = await _dioToGetDelete.delete(
+        '/images/delete-file',
+        queryParameters: {'fileUrl': fileUrl},
+      );
+      return response.statusCode == 200;
+    } catch (e) {
+      print('Error deleting file: $e');
+      return false;
+    }
   }
 }

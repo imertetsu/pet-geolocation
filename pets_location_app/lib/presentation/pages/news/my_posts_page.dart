@@ -5,6 +5,7 @@ import 'package:pets_location_app/data/models/post.dart';
 import 'package:pets_location_app/data/datasources/news_remote_datasource.dart';
 import 'package:pets_location_app/presentation/widgets/post/post_card.dart';
 import '../../../core/network/api_client.dart';
+import '../../../data/datasources/file_remote_datasource.dart';
 
 class MyPostsPage extends StatefulWidget {
   const MyPostsPage({super.key});
@@ -16,6 +17,7 @@ class MyPostsPage extends StatefulWidget {
 class _MyPostsPageState extends State<MyPostsPage> {
   final _storage = const FlutterSecureStorage();
   late final NewsRemoteDataSource _newsDataSource;
+  late final FileRemoteDataSource _fileRemoteDataSource;
   String? _userId;
   late Future<List<Post>> _myPostsFuture;
 
@@ -23,6 +25,7 @@ class _MyPostsPageState extends State<MyPostsPage> {
   void initState() {
     super.initState();
     _newsDataSource = NewsRemoteDataSource(ApiClient.dio);
+    _fileRemoteDataSource = FileRemoteDataSource();
     _loadUserId();
   }
 
@@ -66,13 +69,34 @@ class _MyPostsPageState extends State<MyPostsPage> {
   }
 
   Future<void> _deletePost(int postId) async {
-    final success = await _newsDataSource.deletePost(postId);
-    if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Post eliminado correctamente")),
-      );
-      _refreshPosts();
-    } else {
+    try {
+      // 1. Obtener el post para saber qué imágenes borrar
+      final post = await _newsDataSource.fetchDetailedPostById(postId);
+
+      // 2. Borrar cada imagen en el servidor de archivos
+      for (final imageUrl in post.imageUrls) {
+        try {
+          await _fileRemoteDataSource.deleteFile(imageUrl);
+        } catch (e) {
+          print('Error deleting image $imageUrl: $e');
+        }
+      }
+
+      // 3. Ahora borrar el post en tu backend principal
+      final success = await _newsDataSource.deletePost(postId);
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Post eliminado correctamente")),
+        );
+        _refreshPosts();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Error al eliminar el post")),
+        );
+      }
+    } catch (e) {
+      print('Error deleting post: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Error al eliminar el post")),
       );
