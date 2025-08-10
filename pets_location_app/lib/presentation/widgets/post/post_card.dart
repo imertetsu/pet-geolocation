@@ -12,11 +12,17 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 class PostCard extends StatefulWidget {
   final Post post;
   final NewsRemoteDataSource dataSource;
+  final bool showActions;
+  final VoidCallback? onEdit; 
+  final VoidCallback? onDelete; 
 
   const PostCard({
     super.key,
     required this.post,
     required this.dataSource,
+    this.showActions = false, // por defecto no se muestran los botones
+    this.onEdit,
+    this.onDelete,
   });
 
   @override
@@ -201,13 +207,37 @@ class _PostCardState extends State<PostCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            PostCardHeader(
-              authorName: widget.post.authorName,
-              date: widget.post.createdAt,
-              categoryIcon: CategoryIcon(category: widget.post.category),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: PostCardHeader(
+                    authorName: widget.post.authorName,
+                    date: widget.post.createdAt,
+                    categoryIcon: CategoryIcon(category: widget.post.category),
+                  ),
+                ),
+                if (widget.showActions) // <-- solo en MyPosts y Admin
+                  PopupMenuButton<String>(
+                    onSelected: (value) {
+                      if (value == 'edit') {
+                        widget.onEdit?.call();
+                      } else if (value == 'delete') {
+                        widget.onDelete?.call();
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(value: 'edit', child: Text('Editar')),
+                      const PopupMenuItem(value: 'delete', child: Text('Eliminar')),
+                    ],
+                  ),
+              ],
             ),
             const SizedBox(height: 10),
-            Text(widget.post.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(
+              widget.post.title,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 6),
             Text(widget.post.content),
             const SizedBox(height: 10),
@@ -229,7 +259,7 @@ class _PostCardState extends State<PostCard> {
                       _showReactionMenu(context);
                     },
                     onExit: (_) => _startCloseTimer(),
-                    child: GestureDetector( // 👈 esto permite reaccionar al clic
+                    child: GestureDetector(
                       onTap: () => _showReactionMenu(context),
                       child: Icon(
                         key: _reactionKey,

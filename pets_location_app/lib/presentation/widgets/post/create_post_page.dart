@@ -5,6 +5,7 @@ import 'package:pets_location_app/data/datasources/news_remote_datasource.dart';
 import '../../../data/datasources/session/session_manager.dart';
 import '../../../data/models/news_category.dart';
 import '../../../core/network/api_client.dart';
+import '../../../data/datasources/file_remote_datasource.dart';
 
 class CreatePostPage extends StatefulWidget {
   const CreatePostPage({super.key});
@@ -62,7 +63,6 @@ class _CreatePostPageState extends State<CreatePostPage> {
     setState(() => _isLoading = true);
 
     try {
-      // Recuperar datos de sesión
       final userId = await _sessionManager.getUserId();
       final userName = await _sessionManager.getUserName();
 
@@ -70,7 +70,19 @@ class _CreatePostPageState extends State<CreatePostPage> {
         throw Exception("No hay sesión activa");
       }
 
-      // Llamada al método createPost de tu data source
+      // 1. Subir imágenes y obtener URLs
+      final fileDataSource = FileRemoteDataSource();
+      List<String> uploadedUrls = [];
+
+      for (final img in _selectedImages) {
+        final url = await fileDataSource.uploadFile(
+          file: File(img.path),
+          userId: userId,
+        );
+        uploadedUrls.add(url);
+      }
+
+      // 2. Crear el post con las URLs de imágenes
       await _newsRemoteDataSource.createPost(
         title: _titleController.text.trim(),
         content: _contentController.text.trim(),
@@ -79,7 +91,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
         authorName: userName,
         country: _countryController.text.trim(),
         city: _selectedCity!,
-        images: _selectedImages.map((img) => img.path).toList(),
+        images: uploadedUrls, // Ahora enviamos URLs, no paths
       );
 
       ScaffoldMessenger.of(context).showSnackBar(

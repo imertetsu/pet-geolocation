@@ -4,6 +4,7 @@ import 'pets/pet_list_page.dart';
 import 'pets/map_pet_page.dart';
 import '../../presentation/pages/welcome_page.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../pages/news/my_posts_page.dart';
 
 class HomePage extends StatefulWidget {
   final String userId;
@@ -29,6 +30,7 @@ class _HomePageState extends State<HomePage> {
       NewsFeedPage(userId: widget.userId),
       PetListPage(userId: widget.userId),
       PetMapPage(userId: widget.userId),
+      MyPostsPage(),
     ];
     _loadUserInfo();
   }
@@ -119,6 +121,11 @@ class _HomePageState extends State<HomePage> {
                     leading: const Icon(Icons.map),
                     title: const Text('Ver Mapa'),
                     onTap: () => _onItemTapped(2),
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.article),
+                    title: const Text('Mis Posts'),
+                    onTap: () => _onItemTapped(3),
                   ),
                   const Divider(),
                   ListTile(

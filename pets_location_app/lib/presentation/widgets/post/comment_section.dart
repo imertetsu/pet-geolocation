@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:pets_location_app/data/datasources/news_remote_datasource.dart';
 import 'package:pets_location_app/data/datasources/session/session_manager.dart';
 import 'package:pets_location_app/data/models/comment.dart';
-import 'package:pets_location_app/data/models/post.dart';
 
 class CommentSection extends StatefulWidget {
   final int postId;

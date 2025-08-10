@@ -77,6 +77,7 @@ class _NewsFeedPageState extends State<NewsFeedPage> {
                   return PostCard(
                     post: posts[index],
                     dataSource: _newsService,
+                    showActions: false,
                   );
                 },
               ),

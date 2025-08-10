@@ -149,4 +149,16 @@ class NewsRemoteDataSource {
       throw Exception('Error creating post: $e');
     }
   }
+  Future<List<Post>> getPostsByUserId(String userId) async {
+    final response = await _dio.get('/news/user/$userId');
+    if (response.statusCode == 200) {
+      return (response.data as List).map((json) => Post.fromJson(json)).toList();
+    }
+    throw Exception("Error al obtener posts del usuario");
+  }
+
+  Future<bool> deletePost(int postId) async {
+    final response = await _dio.delete('/news/$postId');
+    return response.statusCode == 204;
+  }
 }

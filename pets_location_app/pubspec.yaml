@@ -16,6 +16,9 @@ dependencies:
 
   image_picker: ^0.8.7+5
 
+  mime: ^1.0.4
+  http_parser: ^4.0.2
+
   #User Geolocator
   geolocator: ^11.0.0
 
