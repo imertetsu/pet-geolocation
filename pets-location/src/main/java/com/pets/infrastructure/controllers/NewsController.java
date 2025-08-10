@@ -33,6 +33,7 @@ public class NewsController {
     private final GetUserReactionUseCase getUserReactionUseCase;
     private final DeleteNewsPostUseCase deleteNewsPostUseCase;
     private final GetNewsPostByIdUseCase getNewsPostByIdUseCase;
+    private final GetNewsPostsByUserIdUseCase getNewsPostsByUserIdUseCase;
 
     // 1. Obtener publicaciones (con filtros opcionales)
     @GetMapping
@@ -148,6 +149,22 @@ public class NewsController {
         }
     }
 
+    @GetMapping("/user/{userId}")
+    public List<NewsPostDto> getNewsByUserId(@PathVariable UUID userId) {
+        List<NewsPost> posts = getNewsPostsByUserIdUseCase.execute(userId);
+
+        return posts.stream()
+                .map(post -> {
+                    NewsPostDto dto = mapper.toDto(post);
+
+                    // Si quieres agregar la reacción del usuario, asumiendo que es el mismo userId del path:
+                    getUserReactionUseCase.execute(post.getId(), userId)
+                            .ifPresent(rt -> dto.setUserReaction(rt.name()));
+
+                    return dto;
+                })
+                .toList();
+    }
     // DTO auxiliar para crear publicaciones
     public static class CreateNewsPostRequest {
         public String title;

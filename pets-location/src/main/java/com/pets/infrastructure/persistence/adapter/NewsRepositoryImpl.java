@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
@@ -37,6 +38,14 @@ public class NewsRepositoryImpl implements NewsRepository {
         NewsPostEntity entity = mapper.toEntity(post);
         return mapper.toDomain(jpaRepository.save(entity));
     }
+    @Override
+    public List<NewsPost> findByUserId(UUID userId) {
+        return jpaRepository.findByAuthorIdOrderByCreatedAtDesc(userId)
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
     @Override
     public void deleteById(Long id) {
         jpaRepository.deleteById(id);
