@@ -6,6 +6,7 @@ import '../../../data/datasources/session/session_manager.dart';
 import '../../../data/models/news_category.dart';
 import '../../../core/network/api_client.dart';
 import '../../../data/datasources/file_remote_datasource.dart';
+import '../../../data/models/news_category_labels.dart';
 
 class CreatePostPage extends StatefulWidget {
   const CreatePostPage({super.key});
@@ -144,7 +145,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
                   items: NewsCategory.values.map((category) {
                     return DropdownMenuItem(
                       value: category,
-                      child: Text(category.name.replaceAll('_', ' ')),
+                      child: Text(NewsCategoryLabels.getEsLabel(category)),
                     );
                   }).toList(),
                   value: _selectedCategory,

@@ -6,6 +6,7 @@ import 'package:pets_location_app/data/datasources/news_remote_datasource.dart';
 import 'package:pets_location_app/data/datasources/file_remote_datasource.dart';
 import '../../../core/network/api_client.dart';
 import '../../../data/models/news_category.dart';
+import '../../../data/models/news_category_labels.dart';
 
 class EditPostPage extends StatefulWidget {
   final Post post;
@@ -26,7 +27,7 @@ class _EditPostPageState extends State<EditPostPage> {
   late List<String> _images; // URLs originales
   List<String> _filesToDelete = [];
   List<File> _filesToUpload = [];
-  late final NewsCategory _selectedCategory;
+  late NewsCategory _selectedCategory;
 
   final _newsDataSource = NewsRemoteDataSource(ApiClient.dio);
   final _fileRemoteDataSource = FileRemoteDataSource();
@@ -154,7 +155,7 @@ class _EditPostPageState extends State<EditPostPage> {
                 items: NewsCategory.values.map((cat) {
                   return DropdownMenuItem(
                     value: cat,
-                    child: Text(cat.name), // .name gives "LOST_PET", etc.
+                    child: Text(NewsCategoryLabels.getEsLabel(cat)),
                   );
                 }).toList(),
                 onChanged: (value) {
