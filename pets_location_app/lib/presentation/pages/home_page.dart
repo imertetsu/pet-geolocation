@@ -138,7 +138,7 @@ class _HomePageState extends State<HomePage> {
             )
           : null, // Si no está autenticado, no hay Drawer
       appBar: AppBar(
-        title: const Text('PetsBol'),
+        title: const Text('PatitasNews'),
         automaticallyImplyLeading: isAuthenticated,
         actions: [
           if (!isAuthenticated)

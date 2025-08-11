@@ -34,6 +34,7 @@ public class NewsController {
     private final DeleteNewsPostUseCase deleteNewsPostUseCase;
     private final GetNewsPostByIdUseCase getNewsPostByIdUseCase;
     private final GetNewsPostsByUserIdUseCase getNewsPostsByUserIdUseCase;
+    private final UpdateNewsPostUseCase updateNewsPostUseCase;
 
     // 1. Obtener publicaciones (con filtros opcionales)
     @GetMapping
@@ -59,8 +60,6 @@ public class NewsController {
                 .toList();
     }
 
-
-
     // 2. Crear una publicación
     @PostMapping
     public NewsPostDto create(@RequestBody CreateNewsPostRequest request) {
@@ -75,6 +74,24 @@ public class NewsController {
                 request.images
         );
         return mapper.toDto(created);
+    }
+
+    @PutMapping("/{postId}")
+    public ResponseEntity<NewsPostDto> updatePost(
+            @PathVariable Long postId,
+            @RequestBody NewsPostUpdateRequest request) {
+
+        NewsPost updatedPost = updateNewsPostUseCase.execute(
+                postId,
+                request.title(),
+                request.content(),
+                request.category(),
+                request.country(),
+                request.city(),
+                request.images()
+        );
+
+        return ResponseEntity.ok(mapper.toDto(updatedPost));
     }
 
     // 3. Comentar una publicación
@@ -176,4 +193,13 @@ public class NewsController {
         public String city;
         public List<String> images;
     }
+
+    public record NewsPostUpdateRequest (
+            String title,
+            String content,
+            NewsCategory category,
+            String country,
+            String city,
+            List<String> images
+    ){}
 }

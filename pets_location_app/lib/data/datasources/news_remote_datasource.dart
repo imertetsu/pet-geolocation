@@ -149,6 +149,29 @@ class NewsRemoteDataSource {
       throw Exception('Error creating post: $e');
     }
   }
+  Future<Post> updatePost(
+    int id,
+    String title,
+    String content,
+    String category,
+    String country,
+    String city,
+    List<String> images,
+  ) async {
+    final response = await _dio.put(
+      '/news/$id',
+      data: {
+        "title": title,
+        "content": content,
+        "category": category,
+        "country": country,
+        "city": city,
+        "images": images,
+      },
+    );
+    return Post.fromJson(response.data);
+  }
+
   Future<List<Post>> getPostsByUserId(String userId) async {
     final response = await _dio.get('/news/user/$userId');
     if (response.statusCode == 200) {

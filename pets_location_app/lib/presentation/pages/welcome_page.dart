@@ -26,14 +26,14 @@ class WelcomePage extends StatelessWidget {
             const SizedBox(height: 32),
 
             const Text(
-              '¡Bienvenido a GeoPet!',
+              '¡Bienvenido a PatitasNews!',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
 
             const SizedBox(height: 16),
             const Text(
-              'Rastrea a tus mascotas en tiempo real y mantenlas seguras.',
+              'Conecta con amantes de las mascotas 🐶🐱. Descubre noticias, consejos, rescates y más, junto a un mapa interactivo para encontrar y ayudar a peluditos perdidos.',
               style: TextStyle(fontSize: 16),
               textAlign: TextAlign.center,
             ),

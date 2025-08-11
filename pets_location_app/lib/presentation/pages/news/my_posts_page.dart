@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:pets_location_app/data/models/post.dart';
 import 'package:pets_location_app/data/datasources/news_remote_datasource.dart';
 import 'package:pets_location_app/presentation/widgets/post/post_card.dart';
 import '../../../core/network/api_client.dart';
 import '../../../data/datasources/file_remote_datasource.dart';
+import '../../widgets/post/edit_post_page.dart';
 
 class MyPostsPage extends StatefulWidget {
   const MyPostsPage({super.key});
@@ -103,11 +103,22 @@ class _MyPostsPageState extends State<MyPostsPage> {
     }
   }
 
-  void _editPost(Post post) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Funcionalidad de edición en desarrollo para: ${post.title}")),
+  void _editPost(Post post) async {
+    final updatedPost = await Navigator.push<Post>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => EditPostPage(post: post),
+      ),
     );
+
+    if (updatedPost != null) {
+      _refreshPosts();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Post actualizado correctamente")),
+      );
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {

@@ -28,7 +28,7 @@ class GeoPetApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'GeoPet',
+      title: 'PatitasNews',
       debugShowCheckedModeBanner: false,
       home: FutureBuilder<String?>(
         future: getStoredUserId(),
