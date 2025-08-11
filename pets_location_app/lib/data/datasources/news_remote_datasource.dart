@@ -1,21 +1,26 @@
 import 'package:dio/dio.dart';
 import 'package:pets_location_app/data/models/detailed_post.dart';
 import '../models/post.dart';
+import '../models/page_result_posts.dart';
 
 class NewsRemoteDataSource {
   final Dio _dio;
 
   NewsRemoteDataSource(this._dio);
-
-  Future<List<Post>> fetchNews({
+    Future<PageResult<Post>> fetchNews({
     String? category,
     DateTime? fromDate,
     String? country,
     String? city,
     String? userId,
+    int page = 0,
+    int size = 10,
   }) async {
     try {
-      final queryParams = <String, dynamic>{};
+      final queryParams = <String, dynamic>{
+        'page': page,
+        'size': size,
+      };
 
       if (category != null) queryParams['category'] = category;
       if (fromDate != null) queryParams['fromDate'] = fromDate.toIso8601String().split('T').first;
@@ -28,12 +33,12 @@ class NewsRemoteDataSource {
         queryParameters: queryParams,
       );
 
-      final List data = response.data;
-      return data.map((json) => Post.fromJson(json)).toList();
+      return PageResult<Post>.fromJson(response.data, (json) => Post.fromJson(json));
     } catch (e) {
       throw Exception('Error fetching news: $e');
     }
   }
+
   
   Future<void> addReaction({
     required int newsId,

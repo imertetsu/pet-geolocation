@@ -1,5 +1,6 @@
 package com.pets.infrastructure.controllers;
 
+import org.springframework.data.domain.Page;
 import com.pets.application.news.*;
 import com.pets.domain.model.NewsCategory;
 import com.pets.domain.model.NewsPost;
@@ -8,12 +9,16 @@ import com.pets.infrastructure.controllers.dto.NewsCommentDto;
 import com.pets.infrastructure.controllers.dto.NewsPostDto;
 import com.pets.infrastructure.mapper.NewsMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -38,26 +43,41 @@ public class NewsController {
 
     // 1. Obtener publicaciones (con filtros opcionales)
     @GetMapping
-    public List<NewsPostDto> getAll(
-            @RequestParam(required = false) NewsCategory category,
+    public Page<NewsPostDto> getAll(
+            @RequestParam(required = false) String category,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam(required = false) UUID userId,
             @RequestParam(required = false) String country,
-            @RequestParam(required = false) String city
+            @RequestParam(required = false) String city,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
-        List<NewsPost> posts = getNewsPosts.execute(category, fromDate, country, city);
+        NewsCategory categoryEnum = null;
+        if (category != null) {
+            try {
+                categoryEnum = NewsCategory.valueOf(category);
+            } catch (IllegalArgumentException e) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Categoría inválida");
+            }
+        }
 
-        return posts.stream()
-                .map(post -> {
-                    NewsPostDto dto = mapper.toDto(post);
-                    //En este caso utilizamos userId para asignar la reaccion del usuario (logeado) en los posts, no para filtrar
-                    if (userId != null) {
-                        getUserReactionUseCase.execute(post.getId(), userId)
-                                .ifPresent(rt -> dto.setUserReaction(rt.name()));
-                    }
-                    return dto;
-                })
-                .toList();
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("createdAt").descending());
+
+        // Convertir LocalDate a LocalDateTime al inicio del día
+        LocalDateTime fromDateTime = (fromDate != null) ? fromDate.atStartOfDay() : null;
+
+        Page<NewsPost> postsPage = getNewsPosts.execute(categoryEnum, fromDateTime, country, city, pageRequest);
+
+        Page<NewsPostDto> dtoPage = postsPage.map(post -> {
+            NewsPostDto dto = mapper.toDto(post);
+            if (userId != null) {
+                getUserReactionUseCase.execute(post.getId(), userId)
+                        .ifPresent(rt -> dto.setUserReaction(rt.name()));
+            }
+            return dto;
+        });
+
+        return dtoPage;
     }
 
     // 2. Crear una publicación

@@ -1,13 +1,17 @@
 package com.pets.infrastructure.persistence.adapter;
 
+import com.pets.domain.model.NewsCategory;
 import com.pets.domain.model.NewsPost;
 import com.pets.domain.repository.NewsRepository;
 import com.pets.infrastructure.mapper.NewsMapper;
 import com.pets.infrastructure.persistence.entities.NewsPostEntity;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,7 +30,6 @@ public class NewsRepositoryImpl implements NewsRepository {
                 .map(mapper::toDomain)
                 .toList();
     }
-
 
     @Override
     public Optional<NewsPost> findById(Long id) {
@@ -49,5 +52,24 @@ public class NewsRepositoryImpl implements NewsRepository {
     @Override
     public void deleteById(Long id) {
         jpaRepository.deleteById(id);
+    }
+
+    @Override
+    public Page<NewsPost> findByFilters(
+            NewsCategory category,
+            LocalDateTime fromDate,
+            String country,
+            String city,
+            Pageable pageable
+    ) {
+        Page<NewsPostEntity> pageEntities = jpaRepository.findByFilters(
+                category,
+                fromDate,
+                country,
+                city,
+                pageable
+        );
+
+        return pageEntities.map(mapper::toDomain);
     }
 }

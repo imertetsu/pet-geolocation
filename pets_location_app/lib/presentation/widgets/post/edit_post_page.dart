@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -108,7 +109,7 @@ class _EditPostPageState extends State<EditPostPage> {
       if (!mounted) return;
       Navigator.pop(context, updatedPost);
     } catch (e) {
-      print("Error al actualizar post: $e");
+      log("Error al actualizar post: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Error al actualizar el post")),
       );
