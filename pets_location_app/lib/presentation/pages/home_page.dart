@@ -5,6 +5,7 @@ import 'pets/map_pet_page.dart';
 import '../../presentation/pages/welcome_page.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../pages/news/my_posts_page.dart';
+import '../../data/datasources/auth_remote_datasource.dart';
 
 class HomePage extends StatefulWidget {
   final String userId;
@@ -22,6 +23,7 @@ class _HomePageState extends State<HomePage> {
   String? userPhotoUrl;
   String? userEmail;
   final _storage = const FlutterSecureStorage();
+  final authRemoteDataSource = AuthRemoteDataSource();
 
   @override
   void initState() {
@@ -62,15 +64,18 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _logout() async {
-  const storage = FlutterSecureStorage();
-  await storage.deleteAll();
+    const storage = FlutterSecureStorage();
+    await storage.deleteAll();
 
-  Navigator.pushAndRemoveUntil(
-    context,
-    MaterialPageRoute(builder: (_) => const WelcomePage()),
-    (route) => false,
-  );
-}
+    // Cerrar sesión de Google
+    await authRemoteDataSource.logoutGoogle();
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const WelcomePage()),
+      (route) => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

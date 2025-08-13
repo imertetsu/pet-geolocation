@@ -14,15 +14,28 @@ class AuthRemoteDataSource {
   final Dio _dio = ApiClient.dio;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
-  Future<void> register(RegisterRequest request) async {
+  Future<void> requestVerificationCode(String email) async {
     try {
-      final response = await _dio.post('/users', data: request.toJson());
+      final response = await _dio.post(
+        '/users/register/request-code',
+        data: {'email': email},
+      );
+      if (response.statusCode != 200) {
+        throw Exception('Error al solicitar código de verificación');
+      }
+    } on DioException catch (e) {
+      throw Exception(e.response?.data['message'] ?? 'Error desconocido');
+    }
+  }
 
-      if (response.statusCode == 201) {
-        // Registrado correctamente
-        return;
-      } else {
-        throw Exception('Error en el registro');
+  Future<void> verifyAndRegister(RegisterRequest request) async {
+    try {
+      final response = await _dio.post(
+        '/users/register/verify',
+        data: request.toJson(),
+      );
+      if (response.statusCode != 201) {
+        throw Exception('Error en la verificación o registro');
       }
     } on DioException catch (e) {
       throw Exception(e.response?.data['message'] ?? 'Error desconocido');
@@ -124,6 +137,17 @@ class AuthRemoteDataSource {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Error de autenticación con Google')),
       );
+    }
+  }
+  Future<void> logoutGoogle() async {
+    try {
+      final googleSignIn = GoogleSignIn();
+      await googleSignIn.signOut();
+      // Si quieres forzar que olvide la cuenta por completo:
+      // await googleSignIn.disconnect();
+      print("Sesión de Google cerrada correctamente");
+    } catch (e) {
+      print("Error al cerrar sesión de Google: $e");
     }
   }
 }
