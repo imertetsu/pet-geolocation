@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../data/datasources/auth_remote_datasource.dart';
-import '../../../data/models/register_request.dart';
+import '../login/verify_code_page.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -28,19 +28,26 @@ class _RegisterPageState extends State<RegisterPage> {
       _error = null;
     });
 
-    final request = RegisterRequest(
-      name: _nameController.text,
-      email: _emailController.text,
-      password: _passwordController.text,
-    );
+    final email = _emailController.text;
 
     try {
-      await _auth.register(request);
+      // Solicitar código
+      await _auth.requestVerificationCode(email);
+
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Usuario registrado con éxito')),
+        // Navegar a pantalla de verificación
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => VerifyCodePage(
+              name: _nameController.text,
+              email: email,
+              password: _passwordController.text,
+              // enviar roles si tienes, por defecto
+              roles: ['CUSTOMER'],
+            ),
+          ),
         );
-        Navigator.pop(context); // Volver al login
       }
     } catch (e) {
       setState(() => _error = e.toString());

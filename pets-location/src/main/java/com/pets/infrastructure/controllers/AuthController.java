@@ -3,8 +3,10 @@ package com.pets.infrastructure.controllers;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 import com.pets.application.auth.LoginWithGoogleUseCase;
+import com.pets.domain.records.UserResponse;
 import com.pets.domain.repository.UserRepository;
 import com.pets.infrastructure.security.JwtUtil;
+import com.pets.infrastructure.notifications.VerificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 

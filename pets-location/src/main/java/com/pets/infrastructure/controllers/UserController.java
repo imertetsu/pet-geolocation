@@ -1,14 +1,14 @@
 package com.pets.infrastructure.controllers;
 
-import com.pets.application.user.DeleteUserByIdUseCase;
-import com.pets.application.user.GetAllUsersUseCase;
-import com.pets.application.user.GetUserByIdUseCase;
-import com.pets.application.user.RegisterUserUseCase;
+import com.pets.application.user.*;
 import com.pets.domain.model.Pet;
 import com.pets.domain.model.User;
 import com.pets.domain.model.UserRole;
+import com.pets.domain.records.EmailRequest;
 import com.pets.domain.records.UserRequest;
 import com.pets.domain.records.UserResponse;
+import com.pets.infrastructure.notifications.EmailService;
+import com.pets.infrastructure.notifications.VerificationService;
 import com.pets.infrastructure.security.PasswordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,26 +21,32 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private final RegisterUserUseCase registerUserUseCase;
+    private final RegisterUserLocalUseCase registerUserLocalUseCase;
     private final PasswordService passwordService;
     private final GetAllUsersUseCase getAllUsersUseCase;
     private final DeleteUserByIdUseCase deleteUserByIdUseCase;
     private final GetUserByIdUseCase getUserByIdUseCase;
+    private final VerificationService verificationService;
+    private final EmailService emailService;
 
     @Autowired
     public UserController(
-            RegisterUserUseCase registerUserUseCase,
+            RegisterUserLocalUseCase registerUserLocalUseCase,
             PasswordService passwordService,
             GetAllUsersUseCase getAllUsersUseCase,
             DeleteUserByIdUseCase deleteUserByIdUseCase,
-            GetUserByIdUseCase getUserByIdUseCase){
-        this.registerUserUseCase = registerUserUseCase;
+            GetUserByIdUseCase getUserByIdUseCase,
+            VerificationService verificationService,
+            EmailService emailService){
+        this.registerUserLocalUseCase = registerUserLocalUseCase;
         this.passwordService = passwordService;
         this.getAllUsersUseCase = getAllUsersUseCase;
         this.deleteUserByIdUseCase = deleteUserByIdUseCase;
         this.getUserByIdUseCase = getUserByIdUseCase;
+        this.verificationService = verificationService;
+        this.emailService = emailService;
     }
-    @PostMapping()
+    /*@PostMapping()
     public ResponseEntity<UserResponse> registerUser(@RequestBody UserRequest request) {
         String encodedPassword = passwordService.encodePassword(request.password());
         User user = registerUserUseCase.execute(
@@ -49,7 +55,48 @@ public class UserController {
                 encodedPassword,
                 request.roles()
         );
-        return ResponseEntity.status(HttpStatus.CREATED).body(new UserResponse(user.getId(), user.getName(), user.getEmail(), user.getIsVerified(), user.getPhotoUrl(), user.getProvider(), user.getRoles(), user.getPets()));
+        return ResponseEntity.status(HttpStatus.CREATED)
+        .body(new UserResponse(
+            user.getId(),
+            user.getName(),
+            user.getEmail(),
+            user.getIsVerified(),
+            user.getPhotoUrl(),
+            user.getProvider(),
+            user.getRoles(),
+            user.getPets()));
+    }*/
+    @PostMapping("/register/request-code")
+    public ResponseEntity<Void> requestVerificationCode(@RequestBody EmailRequest request) {
+        verificationService.generateAndSendCode(request.email(), emailService);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/register/verify")
+    public ResponseEntity<UserResponse> verifyAndRegister(@RequestBody UserRequest request) {
+        boolean verified = verificationService.verifyCode(request.email(), request.code());
+        if (!verified) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+        String encodedPassword = passwordService.encodePassword(request.password());
+        User user = registerUserLocalUseCase.execute(
+                request.name(),
+                request.email(),
+                encodedPassword,
+                request.roles()
+        );
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new UserResponse(
+                        user.getId(),
+                        user.getName(),
+                        user.getEmail(),
+                        user.getIsVerified(),
+                        user.getPhotoUrl(),
+                        user.getProvider(),
+                        user.getRoles(),
+                        user.getPets()
+                ));
     }
 
     @GetMapping

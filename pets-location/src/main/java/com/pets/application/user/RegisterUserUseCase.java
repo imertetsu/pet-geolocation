@@ -3,6 +3,7 @@ package com.pets.application.user;
 import com.pets.domain.model.User;
 import com.pets.domain.model.UserRole;
 import com.pets.domain.repository.UserRepository;
+import com.pets.infrastructure.persistence.entities.AuthProvider;
 import com.pets.infrastructure.persistence.entities.UserRoleEntity;
 
 import java.time.LocalDateTime;
@@ -29,7 +30,8 @@ public class RegisterUserUseCase {
         user.setName(name);
         user.setEmail(email);
         user.setPassword(password);
-        user.setIsVerified(false);
+        user.setIsVerified(true);
+        user.setProvider(AuthProvider.GOOGLE);
 
         // Guardar para generar el ID
         user = userRepository.save(user);

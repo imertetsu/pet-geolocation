@@ -1,2 +1,6 @@
-package com.pets.domain.records;public record EmailRequest() {
+package com.pets.domain.records;
+
+public record EmailRequest(
+        String email
+) {
 }

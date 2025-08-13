@@ -1,53 +1,50 @@
-package com.pets.infrastructure.security;
+package com.pets.infrastructure.notifications;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Component
+@Service
 public class VerificationService {
-    private final Map<String, VerificationCode> codes = new ConcurrentHashMap<>();
 
-    public void generateAndSendCode(String email) {
-        String code = generateCode();
-        // Guardar con timestamp para expiración
-        codes.put(email, new VerificationCode(code, Instant.now().plus(15, ChronoUnit.MINUTES)));
+    private static class CodeEntry {
+        String code;
+        LocalDateTime expiresAt;
+        CodeEntry(String code, LocalDateTime expiresAt) {
+            this.code = code;
+            this.expiresAt = expiresAt;
+        }
+    }
 
-        // Enviar email con código (ejemplo simple)
-        emailService.sendVerificationCode(email, code);
+    private final Map<String, CodeEntry> codes = new ConcurrentHashMap<>();
+    private final Random random = new Random();
+
+    public void generateAndSendCode(String email, EmailService emailService) {
+        String code = String.format("%05d", random.nextInt(100000)); // 5 dígitos
+        codes.put(email, new CodeEntry(code, LocalDateTime.now().plusMinutes(15)));
+
+        System.out.println("Tu código de verificación es: " + code + "\nCaduca en 15 minutos.");
+
+        // Enviar email
+        emailService.sendEmail(email, "Código de verificación",
+                "Tu código de verificación es: " + code + "\nCaduca en 15 minutos.");
     }
 
     public boolean verifyCode(String email, String code) {
-        VerificationCode stored = codes.get(email);
-        if (stored == null) return false;
-        if (stored.getExpiry().isBefore(Instant.now())) {
+        CodeEntry entry = codes.get(email);
+        if (entry == null) return false;
+        if (LocalDateTime.now().isAfter(entry.expiresAt)) {
             codes.remove(email);
             return false;
         }
-        boolean valid = stored.getCode().equals(code);
-        if (valid) codes.remove(email); // Consumir código una vez validado
-        return valid;
-    }
-
-    private String generateCode() {
-        Random random = new Random();
-        int code = 10000 + random.nextInt(90000);
-        return String.valueOf(code);
-    }
-
-    private static class VerificationCode {
-        private final String code;
-        private final Instant expiry;
-        public VerificationCode(String code, Instant expiry) {
-            this.code = code;
-            this.expiry = expiry;
+        boolean matches = entry.code.equals(code);
+        if (matches) {
+            codes.remove(email); // Eliminar tras uso
         }
-        public String getCode() { return code; }
-        public Instant getExpiry() { return expiry; }
+        return matches;
     }
 }
 
