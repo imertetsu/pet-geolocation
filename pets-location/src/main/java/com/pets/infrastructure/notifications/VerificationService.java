@@ -26,8 +26,6 @@ public class VerificationService {
         String code = String.format("%05d", random.nextInt(100000)); // 5 dígitos
         codes.put(email, new CodeEntry(code, LocalDateTime.now().plusMinutes(15)));
 
-        System.out.println("Tu código de verificación es: " + code + "\nCaduca en 15 minutos.");
-
         // Enviar email
         emailService.sendEmail(email, "Código de verificación",
                 "Tu código de verificación es: " + code + "\nCaduca en 15 minutos.");
