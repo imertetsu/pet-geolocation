@@ -46,32 +46,11 @@ public class UserController {
         this.verificationService = verificationService;
         this.emailService = emailService;
     }
-    /*@PostMapping()
-    public ResponseEntity<UserResponse> registerUser(@RequestBody UserRequest request) {
-        String encodedPassword = passwordService.encodePassword(request.password());
-        User user = registerUserUseCase.execute(
-                request.name(),
-                request.email(),
-                encodedPassword,
-                request.roles()
-        );
-        return ResponseEntity.status(HttpStatus.CREATED)
-        .body(new UserResponse(
-            user.getId(),
-            user.getName(),
-            user.getEmail(),
-            user.getIsVerified(),
-            user.getPhotoUrl(),
-            user.getProvider(),
-            user.getRoles(),
-            user.getPets()));
-    }*/
     @PostMapping("/register/request-code")
     public ResponseEntity<Void> requestVerificationCode(@RequestBody EmailRequest request) {
         verificationService.generateAndSendCode(request.email(), emailService);
         return ResponseEntity.ok().build();
     }
-
     @PostMapping("/register/verify")
     public ResponseEntity<UserResponse> verifyAndRegister(@RequestBody UserRequest request) {
         boolean verified = verificationService.verifyCode(request.email(), request.code());
@@ -98,7 +77,6 @@ public class UserController {
                         user.getPets()
                 ));
     }
-
     @GetMapping
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         List<User> users = getAllUsersUseCase.execute();
@@ -116,7 +94,6 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
     }
-
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
         deleteUserByIdUseCase.execute(id);
