@@ -40,6 +40,7 @@ public class NewsController {
     private final GetNewsPostByIdUseCase getNewsPostByIdUseCase;
     private final GetNewsPostsByUserIdUseCase getNewsPostsByUserIdUseCase;
     private final UpdateNewsPostUseCase updateNewsPostUseCase;
+    private final DeleteCommentUseCase deleteCommentUseCase;
 
     // 1. Obtener publicaciones (con filtros opcionales)
     @GetMapping
@@ -124,6 +125,16 @@ public class NewsController {
                 comment.content
         );
         return mapper.toDto(updated);
+    }
+    // Eliminar un comentario de una publicacion
+    @DeleteMapping("/{postId}/comments/{commentId}")
+    public ResponseEntity<NewsPost> deleteComment(
+            @PathVariable Long postId,
+            @PathVariable Long commentId,
+            @RequestParam UUID requesterId
+    ) {
+        NewsPost updatedPost = deleteCommentUseCase.execute(postId, commentId, requesterId);
+        return ResponseEntity.ok(updatedPost);
     }
 
     // 4. Reaccionar a una publicación

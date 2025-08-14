@@ -88,6 +88,51 @@ class _CommentSectionState extends State<CommentSection> {
       setState(() => _isSubmitting = false);
     }
   }
+  Future<void> _confirmDelete(int commentId) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Eliminar comentario"),
+        content: const Text("¿Estás seguro de que quieres eliminar este comentario?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text("Cancelar"),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text("Eliminar"),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      await _deleteComment(commentId);
+    }
+  }
+
+  Future<void> _deleteComment(int commentId) async {
+    if (_authorId == null) return;
+
+    setState(() => _isLoadingComments = true);
+
+    try {
+      await widget.dataSource.deleteComment(
+        newsId: widget.postId,
+        commentId: commentId,
+        requesterId: _authorId!,
+      );
+
+      await widget.onCommentsUpdated();
+      await _refreshComments();
+    } catch (e) {
+      print("Error al eliminar comentario: $e");
+    } finally {
+      setState(() => _isLoadingComments = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,9 +146,19 @@ class _CommentSectionState extends State<CommentSection> {
                 leading: const CircleAvatar(child: Icon(Icons.person)),
                 title: Text(comment.authorName),
                 subtitle: Text(comment.content),
-                trailing: Text(
-                  '${comment.createdAt.day}/${comment.createdAt.month}/${comment.createdAt.year}',
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '${comment.createdAt.day}/${comment.createdAt.month}/${comment.createdAt.year}',
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                    if (_authorId != null && comment.authorId == _authorId)
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () => _confirmDelete(comment.id),
+                      ),
+                  ],
                 ),
               )),
         const SizedBox(height: 8),

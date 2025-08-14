@@ -110,6 +110,24 @@ class NewsRemoteDataSource {
       throw Exception('Error adding comment: $e');
     }
   }
+
+  Future<void> deleteComment({
+    required int newsId,
+    required int commentId,
+    required String requesterId,
+  }) async {
+    try {
+      await _dio.delete(
+        '/news/$newsId/comments/$commentId',
+        queryParameters: {
+          'requesterId': requesterId,
+        },
+      );
+    } catch (e) {
+      throw Exception('Error deleting comment: $e');
+    }
+  }
+
   Future<Post> fetchPostById(int postId) async {
     try {
       final response = await _dio.get('/news/$postId');
