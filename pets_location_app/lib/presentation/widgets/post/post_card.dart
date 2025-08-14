@@ -75,6 +75,7 @@ class _PostCardState extends State<PostCard> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 _reactionOption("LIKE", "👍 Like"),
+                _reactionOption("LOVE", "❤️ Love"),
                 _reactionOption("SAD", "😢 Sad"),
                 _reactionOption("HOPE", "⭐ Hope"),
               ],
@@ -183,8 +184,10 @@ class _PostCardState extends State<PostCard> {
     switch (reaction) {
       case 'LIKE':
         return Icons.thumb_up;
+      case 'LOVE':
+        return Icons.favorite;
       case 'SAD':
-        return Icons.sentiment_dissatisfied;
+        return Icons.sentiment_dissatisfied_rounded;
       case 'HOPE':
         return Icons.star;
       default:
@@ -196,6 +199,7 @@ class _PostCardState extends State<PostCard> {
   Widget build(BuildContext context) {
     final images = widget.post.imageUrls.take(3).toList();
     final likeCount = widget.post.reactions['LIKE'] ?? 0;
+    final loveCount = widget.post.reactions['LOVE'] ?? 0;
     final sadCount = widget.post.reactions['SAD'] ?? 0;
     final hopeCount = widget.post.reactions['HOPE'] ?? 0;
     final userReaction = widget.post.userReaction;
@@ -245,6 +249,7 @@ class _PostCardState extends State<PostCard> {
             const SizedBox(height: 10),
             PostReactionsBar(
               likeCount: likeCount,
+              loveCount: loveCount,
               sadCount: sadCount,
               hopeCount: hopeCount,
             ),
