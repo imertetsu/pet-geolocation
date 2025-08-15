@@ -1,10 +1,9 @@
 package com.pets.infrastructure.controllers;
 
 import com.pets.application.user.*;
-import com.pets.domain.model.Pet;
 import com.pets.domain.model.User;
-import com.pets.domain.model.UserRole;
 import com.pets.domain.records.EmailRequest;
+import com.pets.domain.records.UpdateUserRequest;
 import com.pets.domain.records.UserRequest;
 import com.pets.domain.records.UserResponse;
 import com.pets.infrastructure.notifications.EmailService;
@@ -28,6 +27,7 @@ public class UserController {
     private final GetUserByIdUseCase getUserByIdUseCase;
     private final VerificationService verificationService;
     private final EmailService emailService;
+    private final UpdateUserPartialUseCase updateUserPartialUseCase;
 
     @Autowired
     public UserController(
@@ -37,7 +37,8 @@ public class UserController {
             DeleteUserByIdUseCase deleteUserByIdUseCase,
             GetUserByIdUseCase getUserByIdUseCase,
             VerificationService verificationService,
-            EmailService emailService){
+            EmailService emailService,
+            UpdateUserPartialUseCase updateUserPartialUseCase){
         this.registerUserLocalUseCase = registerUserLocalUseCase;
         this.passwordService = passwordService;
         this.getAllUsersUseCase = getAllUsersUseCase;
@@ -45,6 +46,7 @@ public class UserController {
         this.getUserByIdUseCase = getUserByIdUseCase;
         this.verificationService = verificationService;
         this.emailService = emailService;
+        this.updateUserPartialUseCase = updateUserPartialUseCase;
     }
     @PostMapping("/register/request-code")
     public ResponseEntity<Void> requestVerificationCode(@RequestBody EmailRequest request) {
@@ -94,6 +96,27 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
     }
+    @PatchMapping("/{userId}")
+    public ResponseEntity<User> updateUserPartial(
+            @PathVariable UUID userId,
+            @RequestBody UpdateUserRequest request
+    ) {
+        // Solo encriptar si el password no es nulo ni vacío
+        String encodedPassword = null;
+        if (request.password() != null && !request.password().isBlank()) {
+            encodedPassword = passwordService.encodePassword(request.password());
+        }
+
+        User updatedUser = updateUserPartialUseCase.execute(
+                userId,
+                request.name(),
+                encodedPassword,  // puede ser null si no se envió password
+                request.photoUrl()
+        );
+
+        return ResponseEntity.ok(updatedUser);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
         deleteUserByIdUseCase.execute(id);

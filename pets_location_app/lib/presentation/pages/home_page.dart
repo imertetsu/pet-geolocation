@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pets_location_app/core/network/api_client.dart';
+import 'package:pets_location_app/data/datasources/user_remote_datasource.dart';
 import 'package:pets_location_app/presentation/pages/news/news_feed_page.dart';
 import 'pets/pet_list_page.dart';
 import 'pets/map_pet_page.dart';
@@ -6,6 +8,7 @@ import '../../presentation/pages/welcome_page.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../pages/news/my_posts_page.dart';
 import '../../data/datasources/auth_remote_datasource.dart';
+import '../pages/profile/profile_page.dart';
 
 class HomePage extends StatefulWidget {
   final String userId;
@@ -34,7 +37,8 @@ class _HomePageState extends State<HomePage> {
       PetMapPage(userId: widget.userId),
       MyPostsPage(),
     ];
-    _loadUserInfo();
+    //_loadUserInfo();
+    _loadUserComplete();
   }
 
   String formatUserName(String fullName) {
@@ -45,15 +49,31 @@ class _HomePageState extends State<HomePage> {
     return fullName;
   }
 
-  Future<void> _loadUserInfo() async {
-    final name = await _storage.read(key: 'userName');
-    final photoUrl = await _storage.read(key: 'photoUrl');
-    final email = await _storage.read(key: 'email');
-    setState(() {
-      userName = name;
-      userPhotoUrl = photoUrl;
-      userEmail = email;
-    });
+  Future<void> _loadUserComplete() async {
+    try {
+      final user = await UserRemoteDataSource(ApiClient.dio)
+          .getUserCompleteById(widget.userId);
+
+      // Guardamos los datos relevantes en el storage
+      if (user.name != null) {
+        await _storage.write(key: 'userName', value: user.name);
+      }
+      if (user.photoUrl != null && user.photoUrl!.isNotEmpty) {
+        await _storage.write(key: 'photoUrl', value: user.photoUrl!);
+      }
+      if (user.email != null) {
+        await _storage.write(key: 'email', value: user.email);
+      }
+
+      // Actualizamos el estado local para mostrar en la UI
+      setState(() {
+        userName = user.name;
+        userPhotoUrl = user.photoUrl;
+        userEmail = user.email;
+      });
+    } catch (e) {
+      print('Error loading complete user: $e');
+    }
   }
 
   void _onItemTapped(int index) {
@@ -131,6 +151,23 @@ class _HomePageState extends State<HomePage> {
                     leading: const Icon(Icons.article),
                     title: const Text('Mis Posts'),
                     onTap: () => _onItemTapped(3),
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.person_outline),
+                    title: const Text('Mi Perfil'),
+                    onTap: () async {
+                      Navigator.pop(context);
+                      final updated = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ProfilePage(userId: widget.userId),
+                        ),
+                      );
+                      if (updated == true) {
+                        // Si ProfilePage retornó true, recarga la info del usuario
+                        await _loadUserComplete();
+                      }
+                    },
                   ),
                   const Divider(),
                   ListTile(

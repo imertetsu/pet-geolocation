@@ -43,6 +43,7 @@ public class UserMapper {
         if (domain == null) return null;
 
         UserEntity entity = new UserEntity();
+        entity.setId(domain.getId());
         entity.setName(domain.getName());
         entity.setEmail(domain.getEmail());
         entity.setPassword(domain.getPassword());

@@ -36,6 +36,7 @@ public class SecurityConfig {
                             //con un * solo permitimos el primer nivel con ** permitimos todo para adelante de la ruta
                             //.requestMatchers("/**").permitAll()
                             .requestMatchers(HttpMethod.POST,"/users/**").permitAll()
+                            .requestMatchers(HttpMethod.PATCH,"/users/**").permitAll()
                             .requestMatchers(HttpMethod.GET,"/users/**").permitAll()
                             .requestMatchers(HttpMethod.DELETE, "/users/**").permitAll()
                             .requestMatchers(HttpMethod.POST,"/auth/firebase").permitAll()
