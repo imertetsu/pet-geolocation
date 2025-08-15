@@ -18,8 +18,16 @@ class _LoginPageState extends State<LoginPage> {
   final _auth = AuthRemoteDataSource(); // Instancia del datasource
   bool _loading = false;
   String? _error; // Variable para mostrar errores
+  int _failedAttempts = 0;
+  final int _maxAttempts = 3;
+  bool _isLocked = false;
 
   void _login() async {
+    if (_isLocked) {
+      setState(() => _error = 'Has superado el número máximo de intentos. Intenta más tarde.');
+      return;
+    }
+
     setState(() {
       _loading = true;
       _error = null;
@@ -43,8 +51,16 @@ class _LoginPageState extends State<LoginPage> {
           MaterialPageRoute(builder: (_) => HomePage(userId: response.userId)),
         );
       }
+    } on Exception catch (e) {
+      _failedAttempts++;
+      if (_failedAttempts >= _maxAttempts) {
+        _isLocked = true;
+        setState(() => _error = 'Has superado el número máximo de intentos. Intenta más tarde.');
+      } else {
+        setState(() => _error = 'Credenciales inválidas (${_failedAttempts}/$_maxAttempts)');
+      }
     } catch (e) {
-      setState(() => _error = e.toString());
+      setState(() => _error = 'Error inesperado, inténtalo de nuevo');
     } finally {
       setState(() => _loading = false);
     }

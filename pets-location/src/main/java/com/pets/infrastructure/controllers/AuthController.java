@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -49,33 +50,39 @@ public class AuthController {
         this.loginWithGoogleUseCase = loginWithGoogleUseCase;
     }
     @PostMapping("/login")
-    public ResponseEntity<Map> login(@RequestBody LoginDTO loginDTO){
-        UsernamePasswordAuthenticationToken login = new UsernamePasswordAuthenticationToken(loginDTO.email(), loginDTO.password());
-        System.out.println("LOGIN " + login);
-        Authentication authentication = this.authenticationManager.authenticate(login);
-        String jwt = this.jwtUtil.create(loginDTO.email());
+    public ResponseEntity<Map<String, Object>> login(@RequestBody LoginDTO loginDTO) {
+        try {
+            UsernamePasswordAuthenticationToken login =
+                    new UsernamePasswordAuthenticationToken(loginDTO.email(), loginDTO.password());
+            Authentication authentication = this.authenticationManager.authenticate(login);
 
-        User user =  (User) userDetailsService.loadUserByUsername(loginDTO.email());
-        System.out.println("USER "+user);
-        String email = user.getUsername();
-        String role = user.getAuthorities().stream().findFirst().map(GrantedAuthority::getAuthority).orElse("CUSTOMER");
+            String jwt = this.jwtUtil.create(loginDTO.email());
 
-        UUID userId = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"))
-                .getId();
+            User user = (User) userDetailsService.loadUserByUsername(loginDTO.email());
+            String email = user.getUsername();
+            String role = user.getAuthorities().stream()
+                    .findFirst()
+                    .map(GrantedAuthority::getAuthority)
+                    .orElse("CUSTOMER");
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("userId", userId);
-        response.put("token", jwt);
-        response.put("email", email);
-        response.put("role", role);
+            UUID userId = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found"))
+                    .getId();
 
-        System.out.println("Esta Auth? "+authentication.isAuthenticated());
-        System.out.println(authentication.getPrincipal());
-        System.out.println("JWT: "+jwt);
+            Map<String, Object> response = new HashMap<>();
+            response.put("userId", userId);
+            response.put("token", jwt);
+            response.put("email", email);
+            response.put("role", role);
 
-        return ResponseEntity.ok(response);
+            return ResponseEntity.ok(response);
+        } catch (BadCredentialsException ex) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("message", "Credenciales inválidas");
+            return ResponseEntity.status(401).body(error);
+        }
     }
+
     @PostMapping("/firebase")
     public ResponseEntity<?> loginWithFirebase(@RequestBody TokenRequest request) {
         log.info("Token recibido: {}", request.idToken());
