@@ -4,14 +4,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Getter
 @Setter
 public class NewsCommentDto {
     public Long id;
-    public UUID authorId;
-    public String authorName;
+    public AuthorUserDto author;
     public String content;
     public LocalDateTime createdAt;
 }

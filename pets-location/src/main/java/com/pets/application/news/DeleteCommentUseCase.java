@@ -21,7 +21,7 @@ public class DeleteCommentUseCase {
 
         boolean removed = post.getComments().removeIf(comment ->
                 comment.getId().equals(commentId) &&
-                        comment.getAuthorId().equals(requesterId) // optional: only allow owner
+                        comment.getAuthor().getId().equals(requesterId) // optional: only allow owner
         );
 
         if (!removed) {

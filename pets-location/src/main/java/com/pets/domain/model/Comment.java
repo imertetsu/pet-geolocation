@@ -1,12 +1,12 @@
 package com.pets.domain.model;
 
+import com.pets.infrastructure.controllers.dto.AuthorUserDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -14,8 +14,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class Comment {
     private Long id;
-    private UUID authorId;
-    private String authorName;
+    private AuthorUserDto author;
     private String content;
     private LocalDateTime createdAt;
 

@@ -25,10 +25,9 @@ public class NewsCommentEntity {
     @JoinColumn(name = "news_post_id")
     private NewsPostEntity newsPost;
 
-    @Column(name = "author_id", columnDefinition = "BINARY(16)")
-    private UUID authorId;
-
-    private String authorName;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "author_id", nullable = false)
+    private UserEntity author;
 
     @Column(columnDefinition = "TEXT")
     private String content;
