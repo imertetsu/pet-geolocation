@@ -6,8 +6,7 @@ class Post {
   final String content;
   final String category;
   final DateTime createdAt;
-  final String authorId;
-  final String authorName;
+  final Author author;            
   final String country;
   final String city;
   final List<String> imageUrls;
@@ -21,8 +20,7 @@ class Post {
     required this.content,
     required this.category,
     required this.createdAt,
-    required this.authorId,
-    required this.authorName,
+    required this.author,
     required this.country,
     required this.city,
     required this.imageUrls,
@@ -38,13 +36,12 @@ class Post {
       content: json['content'],
       category: json['category'],
       createdAt: DateTime.parse(json['createdAt']),
-      authorId: json['author']['id'],       
-      authorName: json['author']['name'],
+      author: Author.fromJson(json['author']),
       country: json['country'],
       city: json['city'],
-      imageUrls: List<String>.from(json['images']),
+      imageUrls: List<String>.from(json['images'] ?? []),
       reactions: Map<String, int>.from(json['reactions'] ?? {}),
-      comments: (json['comments'] as List<dynamic>)
+      comments: (json['comments'] as List<dynamic>? ?? [])
           .map((c) => Comment.fromJson(c))
           .toList(),
       userReaction: json['userReaction'],

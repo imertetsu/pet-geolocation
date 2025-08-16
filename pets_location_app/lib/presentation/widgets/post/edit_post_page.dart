@@ -85,7 +85,7 @@ class _EditPostPageState extends State<EditPostPage> {
       for (final file in _filesToUpload) {
         final uploadedUrl = await _fileRemoteDataSource.uploadFile(
           file: file,
-          userId: widget.post.authorId,
+          userId: widget.post.author.id,
         );
         _images.add(uploadedUrl);
       }

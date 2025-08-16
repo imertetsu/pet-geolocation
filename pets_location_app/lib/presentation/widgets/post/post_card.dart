@@ -216,7 +216,7 @@ class _PostCardState extends State<PostCard> {
               children: [
                 Expanded(
                   child: PostCardHeader(
-                    authorName: widget.post.authorName,
+                    authorName: widget.post.author.name,
                     date: widget.post.createdAt,
                     categoryIcon: CategoryIcon(category: widget.post.category),
                   ),

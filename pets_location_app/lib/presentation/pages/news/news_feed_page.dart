@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // para formatear fechas
 import 'package:pets_location_app/data/datasources/news_remote_datasource.dart';
 import 'package:pets_location_app/data/models/news_category.dart';
+import 'package:pets_location_app/data/models/news_category_labels.dart';
 import 'package:pets_location_app/data/models/post.dart';
 import 'package:pets_location_app/presentation/widgets/post/post_card.dart';
 import 'package:pets_location_app/presentation/widgets/post/create_post_page.dart';
@@ -256,18 +257,25 @@ class _FiltersDialogState extends State<_FiltersDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            DropdownButtonFormField<NewsCategory>(
+            DropdownButtonFormField<NewsCategory?>(
               value: _selectedCategory,
               decoration: const InputDecoration(labelText: "Categoría"),
-              items: NewsCategory.values.map((cat) {
-                return DropdownMenuItem(
-                  value: cat,
-                  child: Text(cat.name), // O tu mapa a español si quieres
-                );
-              }).toList(),
+              items: [
+                // Opción "Sin filtro"
+                const DropdownMenuItem<NewsCategory?>(
+                  value: null,
+                  child: Text("Sin filtro"),
+                ),
+                ...NewsCategory.values.map((cat) {
+                  return DropdownMenuItem<NewsCategory?>(
+                    value: cat,
+                    child: Text(NewsCategoryLabels.getEsLabel(cat)),
+                  );
+                }).toList(),
+              ],
               onChanged: (value) {
                 setState(() {
-                  _selectedCategory = value;
+                  _selectedCategory = value; // null = Sin filtro
                 });
               },
             ),
