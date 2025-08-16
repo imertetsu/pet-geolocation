@@ -2,9 +2,12 @@ package com.pets.infrastructure.persistence.adapter;
 
 import com.pets.domain.model.NewsCategory;
 import com.pets.domain.model.NewsPost;
+import com.pets.domain.model.User;
 import com.pets.domain.repository.NewsRepository;
+import com.pets.domain.repository.UserRepository;
 import com.pets.infrastructure.mapper.NewsMapper;
 import com.pets.infrastructure.persistence.entities.NewsPostEntity;
+import com.pets.infrastructure.persistence.entities.UserEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +25,7 @@ public class NewsRepositoryImpl implements NewsRepository {
 
     private final NewsPostJpaRepository jpaRepository;
     private final NewsMapper mapper;
+    private final UserRepository userRepository;
 
     @Override
     public List<NewsPost> findAll() {
@@ -38,9 +42,22 @@ public class NewsRepositoryImpl implements NewsRepository {
 
     @Override
     public NewsPost save(NewsPost post) {
-        NewsPostEntity entity = mapper.toEntity(post);
+        // Obtener el User del dominio
+        User author = userRepository.findById(post.getAuthor().getId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Convertir User a UserEntity
+        UserEntity authorEntity = new UserEntity();
+        authorEntity.setId(author.getId());
+        authorEntity.setName(author.getName());
+
+        // Mapear a entidad usando el UserEntity
+        NewsPostEntity entity = mapper.toEntity(post, authorEntity);
+
+        // Guardar y mapear de vuelta a dominio
         return mapper.toDomain(jpaRepository.save(entity));
     }
+
     @Override
     public List<NewsPost> findByUserId(UUID userId) {
         return jpaRepository.findByAuthorIdOrderByCreatedAtDesc(userId)

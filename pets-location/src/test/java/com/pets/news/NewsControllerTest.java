@@ -8,6 +8,7 @@ import com.pets.domain.model.NewsCategory;
 import com.pets.domain.model.NewsPost;
 import com.pets.domain.model.ReactionType;
 import com.pets.domain.repository.NewsRepository;
+import com.pets.domain.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,6 +21,7 @@ import static org.mockito.Mockito.*;
 public class NewsControllerTest {
 
     private NewsRepository newsRepository;
+    private UserRepository userRepository;
     private CreateNewsPostUseCase createNewsPostUseCase;
     private GetNewsPostByIdUseCase getNewsPostByIdUseCase;
     private ReactToPostUseCase reactToPostUseCase;
@@ -28,7 +30,8 @@ public class NewsControllerTest {
     @BeforeEach
     void setUp() {
         newsRepository = mock(NewsRepository.class);
-        createNewsPostUseCase = new CreateNewsPostUseCase(newsRepository);
+        userRepository = mock(UserRepository.class);
+        createNewsPostUseCase = new CreateNewsPostUseCase(newsRepository, userRepository);
         getNewsPostByIdUseCase = new GetNewsPostByIdUseCase(newsRepository);
         reactToPostUseCase = new ReactToPostUseCase(newsRepository);
         deleteNewsPostUseCase = new DeleteNewsPostUseCase(newsRepository);

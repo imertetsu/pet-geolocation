@@ -3,47 +3,52 @@ package com.pets.infrastructure.mapper;
 import com.pets.domain.model.Comment;
 import com.pets.domain.model.NewsPost;
 import com.pets.domain.model.Reaction;
+import com.pets.domain.model.User;
 import com.pets.infrastructure.controllers.dto.NewsCommentDto;
 import com.pets.infrastructure.controllers.dto.NewsPostDto;
-import com.pets.infrastructure.controllers.dto.UserDto;
+import com.pets.infrastructure.controllers.dto.AuthorUserDto;
 import com.pets.infrastructure.persistence.entities.NewsCommentEntity;
 import com.pets.infrastructure.persistence.entities.NewsPostEntity;
 import com.pets.infrastructure.persistence.entities.NewsReactionEntity;
+import com.pets.infrastructure.persistence.entities.UserEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
 public class NewsMapper {
 
     public NewsPost toDomain(NewsPostEntity entity) {
-        List<Comment> comments = entity.getComments().stream().map(comment -> new Comment(
-                comment.getId(),
-                comment.getAuthorId(),
-                comment.getAuthorName(),
-                comment.getContent(),
-                comment.getCreatedAt()
-        )).collect(Collectors.toCollection(ArrayList::new));
 
-        List<Reaction> reactions = entity.getReactions().stream().map(reaction ->
-                new Reaction(
+        // Mapear comentarios
+        List<Comment> comments = entity.getComments().stream()
+                .map(comment -> new Comment(
+                        comment.getId(),
+                        new AuthorUserDto(comment.getAuthor().getId(), comment.getAuthor().getName()), // Autor como User
+                        comment.getContent(),
+                        comment.getCreatedAt()
+                ))
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        // Mapear reacciones
+        List<Reaction> reactions = entity.getReactions().stream()
+                .map(reaction -> new Reaction(
                         reaction.getId(),
                         reaction.getUserId(),
                         reaction.getReactionType()
-                )
-        ).collect(Collectors.toCollection(ArrayList::new));
+                ))
+                .collect(Collectors.toCollection(ArrayList::new));
 
+        // Mapear el post
         return new NewsPost(
                 entity.getId(),
                 entity.getTitle(),
                 entity.getContent(),
                 entity.getCategory(),
                 entity.getCreatedAt(),
-                entity.getAuthorId(),
-                entity.getAuthorName(),
+                new User(entity.getAuthor().getId(), entity.getAuthor().getName(), null, null, null, null, null, null, null, null), // Autor como User
                 entity.getCountry(),
                 entity.getCity(),
                 entity.getImages(),
@@ -52,15 +57,17 @@ public class NewsMapper {
         );
     }
 
-    public NewsPostEntity toEntity(NewsPost post) {
+    public NewsPostEntity toEntity(NewsPost post, UserEntity authorEntity) {
         NewsPostEntity entity = new NewsPostEntity();
         entity.setId(post.getId());
         entity.setTitle(post.getTitle());
         entity.setContent(post.getContent());
         entity.setCategory(post.getCategory());
         entity.setCreatedAt(post.getCreatedAt());
-        entity.setAuthorId(post.getAuthorId());
-        entity.setAuthorName(post.getAuthorName());
+
+        // Asignamos la relación ManyToOne
+        entity.setAuthor(authorEntity);
+
         entity.setCountry(post.getCountry());
         entity.setCity(post.getCity());
         entity.setImages(post.getImages());
@@ -70,13 +77,18 @@ public class NewsMapper {
                 .map(comment -> {
                     NewsCommentEntity c = new NewsCommentEntity();
                     c.setId(comment.getId());
-                    c.setAuthorId(comment.getAuthorId());
-                    c.setAuthorName(comment.getAuthorName());
+                    // Aquí se asume que tienes un UserEntity para cada autor del comentario
+                    UserEntity commentAuthor = new UserEntity();
+                    commentAuthor.setId(comment.getAuthor().getId());
+                    commentAuthor.setName(comment.getAuthor().getName());
+                    c.setAuthor(commentAuthor);
+
                     c.setContent(comment.getContent());
                     c.setCreatedAt(comment.getCreatedAt());
                     c.setNewsPost(entity);
                     return c;
-                }).collect(Collectors.toList());
+                })
+                .collect(Collectors.toList());
 
         entity.setComments(commentEntities);
 
@@ -89,12 +101,14 @@ public class NewsMapper {
                     r.setReactionType(reaction.getType());
                     r.setNewsPost(entity);
                     return r;
-                }).collect(Collectors.toList());
+                })
+                .collect(Collectors.toList());
 
         entity.setReactions(reactionEntities);
 
         return entity;
     }
+
 
     public NewsPostDto toDto(NewsPost post) {
         NewsPostDto dto = new NewsPostDto();
@@ -104,20 +118,25 @@ public class NewsMapper {
         dto.category = post.getCategory();
         dto.createdAt = post.getCreatedAt();
 
-        dto.author = new UserDto();
-        dto.author.id = post.getAuthorId();
-        dto.author.name = post.getAuthorName();
+        // Autor del post
+        dto.author = new AuthorUserDto();
+        dto.author.setId(post.getAuthor().getId());
+        dto.author.setName(post.getAuthor().getName());
+
         dto.country = post.getCountry();
         dto.city = post.getCity();
-
         dto.images = post.getImages();
 
         // Mapear comentarios
         dto.comments = post.getComments().stream().map(comment -> {
             NewsCommentDto c = new NewsCommentDto();
             c.id = comment.getId();
-            c.authorId = comment.getAuthorId();
-            c.authorName = comment.getAuthorName();
+
+            // Autor del comentario
+            c.author = new AuthorUserDto();
+            c.author.setId(comment.getAuthor().getId());
+            c.author.setName(comment.getAuthor().getName());
+
             c.content = comment.getContent();
             c.createdAt = comment.getCreatedAt();
             return c;
@@ -132,5 +151,6 @@ public class NewsMapper {
 
         return dto;
     }
+
 }
 

@@ -17,7 +17,7 @@ public class NewsPostDto {
     public String content;
     public NewsCategory category;
     public LocalDateTime createdAt;
-    public UserDto author;
+    public AuthorUserDto author;
     public String country;
     public String city;
     public List<String> images;

@@ -1,9 +1,9 @@
 package com.pets.application.news;
 
-import com.pets.domain.model.NewsCategory;
-import com.pets.domain.model.NewsPost;
-import com.pets.domain.model.ReactionType;
+import com.pets.domain.model.*;
 import com.pets.domain.repository.NewsRepository;
+import com.pets.domain.repository.UserRepository;
+import com.pets.infrastructure.controllers.dto.AuthorUserDto;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -13,13 +13,20 @@ import java.util.*;
 public class CreateNewsPostUseCase {
 
     private final NewsRepository newsRepository;
+    private final UserRepository userRepository;
 
-    public CreateNewsPostUseCase(NewsRepository newsRepository) {
+    public CreateNewsPostUseCase(
+            NewsRepository newsRepository,
+            UserRepository userRepository) {
         this.newsRepository = newsRepository;
+        this.userRepository = userRepository;
     }
 
     public NewsPost execute(String title, String content, NewsCategory category,
-                            UUID authorId, String authorName, String country, String city, List<String> images) {
+                            UUID authorId, String country, String city, List<String> images) {
+
+        User author = userRepository.findById(authorId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         NewsPost post = new NewsPost(
                 null,
@@ -27,13 +34,12 @@ public class CreateNewsPostUseCase {
                 content,
                 category,
                 LocalDateTime.now(),
-                authorId,
-                authorName,
+                author, // Ahora guardamos la relación
                 country,
                 city,
                 images != null ? images : new ArrayList<>(),
-                new ArrayList<>(), // comentarios
-                new ArrayList<>()  // reacciones
+                new ArrayList<>(),
+                new ArrayList<>()
         );
 
         return newsRepository.save(post);

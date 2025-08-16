@@ -1,5 +1,7 @@
 package com.pets.infrastructure.controllers;
 
+import com.pets.domain.model.User;
+import com.pets.infrastructure.controllers.dto.AuthorUserDto;
 import org.springframework.data.domain.Page;
 import com.pets.application.news.*;
 import com.pets.domain.model.NewsCategory;
@@ -89,7 +91,6 @@ public class NewsController {
                 request.content,
                 request.category,
                 request.authorId,
-                request.authorName,
                 request.country,
                 request.city,
                 request.images
@@ -117,11 +118,10 @@ public class NewsController {
 
     // 3. Comentar una publicación
     @PostMapping("/{postId}/comments")
-    public NewsPostDto addComment(@PathVariable Long postId, @RequestBody NewsCommentDto comment) {
+    public NewsPostDto addComment(@PathVariable Long postId, @RequestBody NewsCommentRequest comment) {
         NewsPost updated = addComment.execute(
                 postId,
                 comment.authorId,
-                comment.authorName,
                 comment.content
         );
         return mapper.toDto(updated);
@@ -188,10 +188,11 @@ public class NewsController {
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<NewsPost> getNewsPostById(@PathVariable Long postId) {
+    public ResponseEntity<NewsPostDto> getNewsPostById(@PathVariable Long postId) {
         try {
             NewsPost post = getNewsPostByIdUseCase.execute(postId);
-            return ResponseEntity.ok(post);
+            NewsPostDto dto = mapper.toDto(post);
+            return ResponseEntity.ok(dto);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
@@ -219,10 +220,14 @@ public class NewsController {
         public String content;
         public NewsCategory category;
         public UUID authorId;
-        public String authorName;
         public String country;
         public String city;
         public List<String> images;
+    }
+    public static class NewsCommentRequest{
+        public Long id;
+        public UUID authorId;
+        public String content;
     }
 
     public record NewsPostUpdateRequest (

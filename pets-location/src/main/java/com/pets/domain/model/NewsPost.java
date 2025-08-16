@@ -1,5 +1,6 @@
 package com.pets.domain.model;
 
+import com.pets.infrastructure.controllers.dto.AuthorUserDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -7,8 +8,6 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -20,8 +19,7 @@ public class NewsPost {
     private String content;
     private NewsCategory category;
     private LocalDateTime createdAt;
-    private UUID authorId;
-    private String authorName;
+    private User author;
     private String country;
     private String city;
     private List<String> images;

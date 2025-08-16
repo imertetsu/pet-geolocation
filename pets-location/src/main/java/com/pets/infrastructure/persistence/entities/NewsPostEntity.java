@@ -33,10 +33,9 @@ public class NewsPostEntity {
 
     private LocalDateTime createdAt;
 
-    @Column(name = "author_id", columnDefinition = "BINARY(16)")
-    private UUID authorId;
-
-    private String authorName;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "author_id", nullable = false)
+    private UserEntity author;
     private String country;
     private String city;
 
