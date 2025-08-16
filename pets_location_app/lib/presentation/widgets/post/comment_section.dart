@@ -30,7 +30,6 @@ class _CommentSectionState extends State<CommentSection> {
   late List<Comment> _comments;
 
   String? _authorId;
-  String? _authorName;
 
   @override
   void initState() {
@@ -41,11 +40,9 @@ class _CommentSectionState extends State<CommentSection> {
 
   Future<void> _loadUserData() async {
     final id = await _session.getUserId();
-    final name = await _session.getUserName();
 
     setState(() {
       _authorId = id;
-      _authorName = name ?? 'Usuario';
     });
   }
 
@@ -71,7 +68,6 @@ class _CommentSectionState extends State<CommentSection> {
       await widget.dataSource.addComment(
         newsId: widget.postId,
         authorId: _authorId!,
-        authorName: _authorName ?? 'Usuario',
         content: content,
       );
 
@@ -144,7 +140,7 @@ class _CommentSectionState extends State<CommentSection> {
         else
           ..._comments.map((comment) => ListTile(
                 leading: const CircleAvatar(child: Icon(Icons.person)),
-                title: Text(comment.authorName),
+                title: Text(comment.author.name),
                 subtitle: Text(comment.content),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -153,7 +149,7 @@ class _CommentSectionState extends State<CommentSection> {
                       '${comment.createdAt.day}/${comment.createdAt.month}/${comment.createdAt.year}',
                       style: const TextStyle(fontSize: 12, color: Colors.grey),
                     ),
-                    if (_authorId != null && comment.authorId == _authorId)
+                    if (_authorId != null && comment.author.id == _authorId)
                       IconButton(
                         icon: const Icon(Icons.delete, color: Colors.red),
                         onPressed: () => _confirmDelete(comment.id),

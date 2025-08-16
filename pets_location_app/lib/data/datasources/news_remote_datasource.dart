@@ -94,7 +94,6 @@ class NewsRemoteDataSource {
   Future<void> addComment({
     required int newsId,
     required String authorId,
-    required String authorName,
     required String content,
   }) async {
     try {
@@ -102,7 +101,6 @@ class NewsRemoteDataSource {
         '/news/$newsId/comments',
         data: {
           'authorId': authorId,
-          'authorName': authorName,
           'content': content,
         },
       );
@@ -162,7 +160,6 @@ class NewsRemoteDataSource {
           'content': content,
           'category': category,
           'authorId': authorId,
-          'authorName': authorName,
           'country': country,
           'city': city,
           'images': images,

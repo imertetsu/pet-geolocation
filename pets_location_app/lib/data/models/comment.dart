@@ -1,14 +1,12 @@
 class Comment {
   final int id;
-  final String authorId;
-  final String authorName;
+  final Author author;
   final String content;
   final DateTime createdAt;
 
   Comment({
     required this.id,
-    required this.authorId,
-    required this.authorName,
+    required this.author,
     required this.content,
     required this.createdAt,
   });
@@ -16,10 +14,26 @@ class Comment {
   factory Comment.fromJson(Map<String, dynamic> json) {
     return Comment(
       id: json['id'],
-      authorId: json['authorId'],
-      authorName: json['authorName'],
+      author: Author.fromJson(json['author']), // ← ahora mapeamos desde el objeto author
       content: json['content'],
       createdAt: DateTime.parse(json['createdAt']),
+    );
+  }
+}
+
+class Author {
+  final String id;
+  final String name;
+
+  Author({
+    required this.id,
+    required this.name,
+  });
+
+  factory Author.fromJson(Map<String, dynamic> json) {
+    return Author(
+      id: json['id'],
+      name: json['name'],
     );
   }
 }
