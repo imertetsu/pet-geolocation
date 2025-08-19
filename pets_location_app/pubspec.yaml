@@ -14,11 +14,18 @@ dependencies:
   google_maps_flutter: ^2.5.3
   google_maps_flutter_web: ^0.5.4+2
 
+  flutter_launcher_icons: "^0.13.1"
+
+  share_plus: ^10.0.2 #para abrir el menú de compartir
+  path_provider: ^2.1.4 #para guardar temporalmente la imagen en el dispositivo.
+
   image_picker: ^0.8.7+5
 
   mime: ^1.0.4
   http_parser: ^4.0.2
   intl: ^0.18.1 #dateformat
+
+  app_links: ^6.1.2 #capturar deep links en Flutter
 
   #User Geolocator
   geolocator: ^11.0.0
@@ -80,3 +87,8 @@ flutter:
     - assets/icons/pet_service.png
     - assets/icons/pet_happy_stories.png
     - assets/icons/pet_alert.png
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/paws.png"
