@@ -51,9 +51,20 @@ class _CreatePostPageState extends State<CreatePostPage> {
   Future<void> _pickImages() async {
     final picker = ImagePicker();
     final images = await picker.pickMultiImage();
+
     if (images.isNotEmpty) {
+      // Limitar a máximo 3 imágenes
+      if ((_selectedImages.length + images.length) > 3) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Solo puedes subir máximo 3 imágenes/videos'),
+          ),
+        );
+        return;
+      }
+
       setState(() {
-        _selectedImages = images;
+        _selectedImages.addAll(images);
       });
     }
   }
@@ -191,7 +202,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: ElevatedButton.icon(
-                    onPressed: _pickImages,
+                    onPressed: _selectedImages.length >= 3 ? null : _pickImages,
                     icon: const Icon(Icons.image),
                     label: const Text('Adjuntar imágenes'),
                   ),
