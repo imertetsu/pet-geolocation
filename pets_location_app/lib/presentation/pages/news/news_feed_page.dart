@@ -34,14 +34,13 @@ class _NewsFeedPageState extends State<NewsFeedPage> {
   // Filtros
   NewsCategory? _selectedCategory;
   String? _countryFilter;
-  String? _cityFilter;
+  String? _selectedCity;
   DateTime? _fromDateFilter;
 
   @override
   void initState() {
     super.initState();
     _newsService = NewsRemoteDataSource(ApiClient.dio);
-
     _loadUserId();
 
     _scrollController.addListener(() {
@@ -81,7 +80,7 @@ class _NewsFeedPageState extends State<NewsFeedPage> {
         size: _pageSize,
         category: _selectedCategory?.name,
         country: _countryFilter,
-        city: _cityFilter,
+        city: _selectedCity,
         fromDate: _fromDateFilter,
       );
 
@@ -106,7 +105,7 @@ class _NewsFeedPageState extends State<NewsFeedPage> {
         return _FiltersDialog(
           initialCategory: _selectedCategory,
           initialCountry: _countryFilter,
-          initialCity: _cityFilter,
+          initialCity: _selectedCity,
           initialFromDate: _fromDateFilter,
         );
       },
@@ -116,7 +115,7 @@ class _NewsFeedPageState extends State<NewsFeedPage> {
       setState(() {
         _selectedCategory = result.category;
         _countryFilter = result.country;
-        _cityFilter = result.city;
+        _selectedCity = result.city;
         _fromDateFilter = result.fromDate;
       });
       _refreshPosts();
@@ -222,15 +221,26 @@ class _FiltersDialog extends StatefulWidget {
 class _FiltersDialogState extends State<_FiltersDialog> {
   NewsCategory? _selectedCategory;
   late TextEditingController _countryController;
-  late TextEditingController _cityController;
+  late String? _selectedCity;
   DateTime? _selectedDate;
+  final List<String> _boliviaCities = [
+    "La Paz",
+    "Cochabamba",
+    "Santa Cruz",
+    "Sucre",
+    "Oruro",
+    "Potosí",
+    "Tarija",
+    "Beni",
+    "Pando"
+  ];
 
   @override
   void initState() {
     super.initState();
     _selectedCategory = widget.initialCategory;
     _countryController = TextEditingController(text: widget.initialCountry ?? '');
-    _cityController = TextEditingController(text: widget.initialCity ?? '');
+    _selectedCity = widget.initialCity;
     _selectedDate = widget.initialFromDate;
   }
 
@@ -280,12 +290,31 @@ class _FiltersDialogState extends State<_FiltersDialog> {
               },
             ),
             TextFormField(
-              controller: _countryController,
+              initialValue: "Bolivia",
               decoration: const InputDecoration(labelText: "País"),
+              enabled: false,
             ),
-            TextFormField(
-              controller: _cityController,
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String?>(
+              value: _selectedCity,
               decoration: const InputDecoration(labelText: "Ciudad"),
+              items: [
+                const DropdownMenuItem<String?>(
+                  value: null,
+                  child: Text("Sin filtro"),
+                ),
+                ..._boliviaCities.map((city) {
+                  return DropdownMenuItem<String?>(
+                    value: city,
+                    child: Text(city),
+                  );
+                }).toList(),
+              ],
+              onChanged: (value) {
+                setState(() {
+                  _selectedCity = value;
+                });
+              },
             ),
             const SizedBox(height: 12),
             Row(
@@ -324,8 +353,8 @@ class _FiltersDialogState extends State<_FiltersDialog> {
               context,
               _FiltersResult(
                 category: _selectedCategory,
-                country: _countryController.text.isEmpty ? null : _countryController.text,
-                city: _cityController.text.isEmpty ? null : _cityController.text,
+                country: "Bolivia",
+                city: _selectedCity,
                 fromDate: _selectedDate,
               ),
             );
