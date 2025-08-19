@@ -6,6 +6,7 @@ class UserUpdate {
   final bool? isVerified;
   final String? photoUrl;
   final String? provider;
+  final bool? hasGpsDevice;
 
   UserUpdate({
     required this.id,
@@ -15,6 +16,7 @@ class UserUpdate {
     required this.isVerified,
     this.photoUrl,
     required this.provider,
+    required this.hasGpsDevice,
   });
 
   factory UserUpdate.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,7 @@ class UserUpdate {
       isVerified: json['isVerified'],
       photoUrl: json['photoUrl'],
       provider: json['provider'],
+      hasGpsDevice: json['hasGpsDevice']
     );
   }
 }

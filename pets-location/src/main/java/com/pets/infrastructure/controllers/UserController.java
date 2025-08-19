@@ -9,16 +9,19 @@ import com.pets.domain.records.UserResponse;
 import com.pets.infrastructure.notifications.EmailService;
 import com.pets.infrastructure.notifications.VerificationService;
 import com.pets.infrastructure.security.PasswordService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/users")
+@RequiredArgsConstructor
 public class UserController {
     private final RegisterUserLocalUseCase registerUserLocalUseCase;
     private final PasswordService passwordService;
@@ -28,26 +31,8 @@ public class UserController {
     private final VerificationService verificationService;
     private final EmailService emailService;
     private final UpdateUserPartialUseCase updateUserPartialUseCase;
+    private final UpdateUserGpsStatusUseCase updateUserGpsStatusUseCase;
 
-    @Autowired
-    public UserController(
-            RegisterUserLocalUseCase registerUserLocalUseCase,
-            PasswordService passwordService,
-            GetAllUsersUseCase getAllUsersUseCase,
-            DeleteUserByIdUseCase deleteUserByIdUseCase,
-            GetUserByIdUseCase getUserByIdUseCase,
-            VerificationService verificationService,
-            EmailService emailService,
-            UpdateUserPartialUseCase updateUserPartialUseCase){
-        this.registerUserLocalUseCase = registerUserLocalUseCase;
-        this.passwordService = passwordService;
-        this.getAllUsersUseCase = getAllUsersUseCase;
-        this.deleteUserByIdUseCase = deleteUserByIdUseCase;
-        this.getUserByIdUseCase = getUserByIdUseCase;
-        this.verificationService = verificationService;
-        this.emailService = emailService;
-        this.updateUserPartialUseCase = updateUserPartialUseCase;
-    }
     @PostMapping("/register/request-code")
     public ResponseEntity<Void> requestVerificationCode(@RequestBody EmailRequest request) {
         verificationService.generateAndSendCode(request.email(), emailService);
@@ -121,5 +106,16 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
         deleteUserByIdUseCase.execute(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{userId}/gps-status")
+    public ResponseEntity<User> updateGpsStatus(
+            @PathVariable UUID userId,
+            @RequestBody Map<String, Boolean> body) {
+
+        Boolean hasGpsDevice = body.get("hasGpsDevice");
+        User updatedUser = updateUserGpsStatusUseCase.execute(userId, hasGpsDevice);
+
+        return ResponseEntity.ok(updatedUser);
     }
 }

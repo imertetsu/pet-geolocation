@@ -25,6 +25,7 @@ class _HomePageState extends State<HomePage> {
   String? userName;
   String? userPhotoUrl;
   String? userEmail;
+  bool? hasGpsDevice;
   final _storage = const FlutterSecureStorage();
   final authRemoteDataSource = AuthRemoteDataSource();
 
@@ -64,6 +65,8 @@ class _HomePageState extends State<HomePage> {
       if (user.email != null) {
         await _storage.write(key: 'email', value: user.email);
       }
+
+      hasGpsDevice = user.hasGpsDevice;
 
       // Actualizamos el estado local para mostrar en la UI
       setState(() {
@@ -140,12 +143,14 @@ class _HomePageState extends State<HomePage> {
                   ListTile(
                     leading: const Icon(Icons.pets),
                     title: const Text('Mis Mascotas'),
-                    onTap: () => _onItemTapped(1),
+                    onTap: (hasGpsDevice == true) ? () => _onItemTapped(1) : null,
+                    enabled: hasGpsDevice == true,
                   ),
                   ListTile(
                     leading: const Icon(Icons.map),
                     title: const Text('Ver Mapa'),
-                    onTap: () => _onItemTapped(2),
+                    onTap: (hasGpsDevice == true) ? () => _onItemTapped(2) : null,
+                    enabled: hasGpsDevice == true,
                   ),
                   ListTile(
                     leading: const Icon(Icons.article),

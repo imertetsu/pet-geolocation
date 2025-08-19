@@ -48,7 +48,7 @@ public class NewsMapper {
                 entity.getContent(),
                 entity.getCategory(),
                 entity.getCreatedAt(),
-                new User(entity.getAuthor().getId(), entity.getAuthor().getName(), null, null, null, null, null, null, null, null), // Autor como User
+                new User(entity.getAuthor().getId(), entity.getAuthor().getName(), null, null, null, null, null, null, null, null, null), // Autor como User
                 entity.getCountry(),
                 entity.getCity(),
                 entity.getImages(),

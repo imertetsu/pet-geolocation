@@ -42,6 +42,9 @@ public class UserEntity {
     private AuthProvider provider; // Enum: LOCAL, GOOGLE, FACEBOOK
     private String providerId;     // El ID de Google o Facebook
 
+    @Column(name = "has_gps_device")
+    private Boolean hasGpsDevice = false;
+
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<UserRoleEntity> roles;
 

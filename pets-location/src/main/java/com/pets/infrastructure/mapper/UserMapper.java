@@ -22,6 +22,7 @@ public class UserMapper {
         user.setPhotoUrl(entity.getPhotoUrl());
         user.setProvider(entity.getProvider());
         user.setProviderId(entity.getProviderId());
+        user.setHasGpsDevice(entity.getHasGpsDevice());
 
         // Convertir roles si existen
         if (entity.getRoles() != null) {
@@ -51,6 +52,7 @@ public class UserMapper {
         entity.setPhotoUrl(domain.getPhotoUrl());
         entity.setProvider(domain.getProvider());
         entity.setProviderId(domain.getProviderId());
+        entity.setHasGpsDevice(domain.getHasGpsDevice());
 
         if (domain.getRoles() != null) {
             List<UserRoleEntity> roles = domain.getRoles().stream()

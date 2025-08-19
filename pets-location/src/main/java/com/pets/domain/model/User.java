@@ -23,6 +23,7 @@ public class User {
     private String photoUrl;
     private AuthProvider provider;
     private String providerId;
+    private Boolean hasGpsDevice;
     private List<UserRole> roles;
     private List<Pet> pets;
 }
