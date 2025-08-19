@@ -8,6 +8,10 @@ import 'package:pets_location_app/presentation/widgets/post/post_reaction_bar.da
 import '../post/category_icon.dart';
 import '../post/comment_section.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:http/http.dart' as http;
+import 'dart:io';
 
 class PostCard extends StatefulWidget {
   final Post post;
@@ -195,6 +199,44 @@ class _PostCardState extends State<PostCard> {
     }
   }
 
+  Future<void> _sharePost() async {
+    final post = widget.post;
+
+    // Texto que acompañará a la imagen
+    final shareText = """
+      ${post.title}
+
+      ${post.content}
+
+      Ver más en: http://10.0.2.2:8080/api/news/public/${post.id}
+      """;
+
+    try {
+      if (post.imageUrls.isNotEmpty) {
+        final url = post.imageUrls.first;
+        final response = await http.get(Uri.parse(url));
+
+        if (response.statusCode == 200) {
+          final tempDir = await getTemporaryDirectory();
+          final file = File("${tempDir.path}/post_image.jpg");
+          await file.writeAsBytes(response.bodyBytes);
+
+          await Share.shareXFiles(
+            [XFile(file.path)],
+            text: shareText,
+          );
+          return;
+        }
+      }
+
+      // Si no hay imagen o falla la descarga → compartir solo texto
+      await Share.share(shareText);
+    } catch (e) {
+      print("Error al compartir: $e");
+      await Share.share(shareText);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final images = widget.post.imageUrls.take(3).toList();
@@ -259,20 +301,21 @@ class _PostCardState extends State<PostCard> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   MouseRegion(
-                    onEnter: (_) {
-                      _cancelCloseTimer();
-                      _showReactionMenu(context);
-                    },
-                    onExit: (_) => _startCloseTimer(),
-                    child: GestureDetector(
-                      onTap: () => _showReactionMenu(context),
-                      child: Icon(
-                        key: _reactionKey,
-                        _getIconForReaction(userReaction),
-                        color: userReaction != null ? Colors.blue : Colors.grey,
+                        onEnter: (_) {
+                          _cancelCloseTimer();
+                          _showReactionMenu(context);
+                        },
+                        onExit: (_) => _startCloseTimer(),
+                        child: GestureDetector(
+                          onTap: () => _showReactionMenu(context),
+                          child: Icon(
+                            key: _reactionKey,
+                            _getIconForReaction(userReaction),
+                            color: userReaction != null ? Colors.blue : Colors.grey,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
+                      const SizedBox(width: 8),
                   TextButton.icon(
                     onPressed: () async {
                       setState(() {
@@ -283,6 +326,10 @@ class _PostCardState extends State<PostCard> {
                     },
                     icon: const Icon(Icons.comment),
                     label: Text("(${widget.post.comments.length}) Comentar"),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.share),
+                    onPressed: _sharePost,
                   ),
                 ],
               ),

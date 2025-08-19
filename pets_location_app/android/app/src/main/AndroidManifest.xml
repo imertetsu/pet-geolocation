@@ -3,7 +3,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <application
-        android:label="pets_location_app"
+        android:label="Patitas News"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
@@ -30,6 +30,31 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+
+            <!-- Deep link con esquema personalizado -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <!-- tu esquema -->
+                <data android:scheme="petsapp" android:host="post" />
+            </intent-filter>
+
+            <!-- Deep link con dominio (App Link) -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <!-- ejemplo: https://mi-dominio.com/post/24 -->
+                <data
+                    android:scheme="http"
+                    android:host="localhost:8080"
+                    android:pathPrefix="/api/news/public/" />
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
