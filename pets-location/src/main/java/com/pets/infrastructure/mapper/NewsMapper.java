@@ -26,7 +26,7 @@ public class NewsMapper {
         List<Comment> comments = entity.getComments().stream()
                 .map(comment -> new Comment(
                         comment.getId(),
-                        new AuthorUserDto(comment.getAuthor().getId(), comment.getAuthor().getName()), // Autor como User
+                        new AuthorUserDto(comment.getAuthor().getId(), comment.getAuthor().getName(), comment.getAuthor().getPhotoUrl()), // Autor como User
                         comment.getContent(),
                         comment.getCreatedAt()
                 ))
@@ -48,7 +48,8 @@ public class NewsMapper {
                 entity.getContent(),
                 entity.getCategory(),
                 entity.getCreatedAt(),
-                new User(entity.getAuthor().getId(), entity.getAuthor().getName(), null, null, null, null, null, null, null, null, null), // Autor como User
+                new User(entity.getAuthor().getId(), entity.getAuthor().getName(), null, null, null, entity.getAuthor()
+                        .getPhotoUrl(), null, null, null, null, null), // Autor como User
                 entity.getCountry(),
                 entity.getCity(),
                 entity.getImages(),
@@ -122,6 +123,7 @@ public class NewsMapper {
         dto.author = new AuthorUserDto();
         dto.author.setId(post.getAuthor().getId());
         dto.author.setName(post.getAuthor().getName());
+        dto.author.setPhotoUrl(post.getAuthor().getPhotoUrl());
 
         dto.country = post.getCountry();
         dto.city = post.getCity();
@@ -136,6 +138,7 @@ public class NewsMapper {
             c.author = new AuthorUserDto();
             c.author.setId(comment.getAuthor().getId());
             c.author.setName(comment.getAuthor().getName());
+            c.author.setPhotoUrl(comment.getAuthor().getPhotoUrl());
 
             c.content = comment.getContent();
             c.createdAt = comment.getCreatedAt();

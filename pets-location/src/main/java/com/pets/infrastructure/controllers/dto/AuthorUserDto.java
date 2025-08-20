@@ -14,4 +14,5 @@ import java.util.UUID;
 public class AuthorUserDto {
     public UUID id;
     public String name;
+    public String photoUrl;
 }

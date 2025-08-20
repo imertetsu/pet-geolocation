@@ -31,7 +31,7 @@ public class AddCommentUseCase {
         User user = userRepository.findById(authorId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        AuthorUserDto author = new AuthorUserDto(user.getId(), user.getName());
+        AuthorUserDto author = new AuthorUserDto(user.getId(), user.getName(), user.getPhotoUrl());
 
         post.getComments().add(new Comment(
                 null,
