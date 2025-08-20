@@ -12,7 +12,7 @@ class LocationStompClient {
   }) {
     _client = StompClient(
       config: StompConfig(
-        url: 'ws://10.0.2.2:8080/api/ws-location',
+        url: 'ws://181.114.109.198:9090/api/ws-location',
         onConnect: (StompFrame frame) {
           _client?.subscribe(
             destination: '/topic/location/$petId',

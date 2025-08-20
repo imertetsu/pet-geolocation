@@ -7,7 +7,7 @@ import '../../../data/datasources/file_remote_datasource.dart';
 import '../../../core/network/api_client.dart';
 
 class ProfilePage extends StatefulWidget {
-  final String userId;
+  final String? userId;
   const ProfilePage({super.key, required this.userId});
 
   @override

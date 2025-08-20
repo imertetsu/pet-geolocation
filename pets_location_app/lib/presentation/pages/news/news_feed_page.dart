@@ -10,7 +10,7 @@ import '../../../core/network/api_client.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class NewsFeedPage extends StatefulWidget {
-  final String userId;
+  final String? userId;
 
   const NewsFeedPage({super.key, required this.userId});
 

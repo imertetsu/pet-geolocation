@@ -208,7 +208,7 @@ class _PostCardState extends State<PostCard> {
 
       ${post.content}
 
-      Ver más en: http://10.0.2.2:8080/api/news/public/${post.id}
+      Ver más en: http://181.114.109.198:9090/api/news/public/${post.id}
       """;
 
     try {

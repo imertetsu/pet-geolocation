@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:pets_location_app/presentation/pages/home_page.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:pets_location_app/presentation/pages/welcome_page.dart';
 import 'package:pets_location_app/presentation/widgets/post/post_detail_page.dart';
 import 'firebase_options.dart';
 import 'package:app_links/app_links.dart';
@@ -27,6 +28,7 @@ class GeoPetApp extends StatefulWidget {
 class _GeoPetAppState extends State<GeoPetApp> {
   final _secureStorage = const FlutterSecureStorage();
   String? _userId;
+  bool _isLoading = true;
   StreamSubscription? _sub;
   final AppLinks _appLinks = AppLinks();
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -42,7 +44,13 @@ class _GeoPetAppState extends State<GeoPetApp> {
 
   Future<void> _loadUserId() async {
     final id = await _secureStorage.read(key: "userId");
-    if (mounted) setState(() => _userId = id);
+    if (mounted) {
+      setState(() {
+        _userId = (id != null && id.isNotEmpty) ? id : null;
+        print('USER ID : $_userId');
+        _isLoading = false;
+      });
+    }
   }
 
   void _initDeepLinks() {
@@ -75,7 +83,7 @@ class _GeoPetAppState extends State<GeoPetApp> {
     }
 
     // 🔹 App Link con dominio
-    if (uri.host == "localhost") {
+    if (uri.host == "181.114.109.198") {
       if (uri.pathSegments.length >= 4 &&
           uri.pathSegments[0] == "api" &&
           uri.pathSegments[1] == "news" &&
@@ -106,15 +114,20 @@ class _GeoPetAppState extends State<GeoPetApp> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const MaterialApp(
+        home: Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        ),
+      );
+    }
+
     return MaterialApp(
       title: 'PatitasNews',
       navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
-      home: _userId == null
-          ? const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            )
-          : HomePage(userId: _userId ?? ''),
+      home: HomePage(userId: _userId),
     );
   }
+
 }

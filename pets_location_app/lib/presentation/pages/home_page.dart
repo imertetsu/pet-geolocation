@@ -11,7 +11,7 @@ import '../../data/datasources/auth_remote_datasource.dart';
 import '../pages/profile/profile_page.dart';
 
 class HomePage extends StatefulWidget {
-  final String userId;
+  final String? userId;
 
   const HomePage({super.key, required this.userId});
 

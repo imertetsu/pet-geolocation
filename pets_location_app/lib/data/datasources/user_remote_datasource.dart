@@ -16,7 +16,7 @@ class UserRemoteDataSource {
     }
   }
 
-  Future<UserUpdate> getUserCompleteById(String userId) async {
+  Future<UserUpdate> getUserCompleteById(String? userId) async {
     try {
       final response = await _dio.get('/users/$userId');
       return UserUpdate.fromJson(response.data);
@@ -26,7 +26,7 @@ class UserRemoteDataSource {
   }
 
   Future<void> updateUser(
-    String userId, {
+    String? userId, {
     required String name,
     String? password,
     String? photoUrl,

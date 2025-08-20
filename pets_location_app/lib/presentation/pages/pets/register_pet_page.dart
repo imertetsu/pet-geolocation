@@ -5,7 +5,7 @@ import '../../../../data/models/pet.dart';
 import '../../../../data/datasources/pet_remote_datasource.dart';
 
 class RegisterPetPage extends StatefulWidget {
-  final String userId;
+  final String? userId;
 
   const RegisterPetPage({super.key, required this.userId});
 

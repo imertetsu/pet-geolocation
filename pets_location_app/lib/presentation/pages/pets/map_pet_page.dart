@@ -11,7 +11,7 @@ import 'package:geolocator/geolocator.dart';
 import 'dart:math';
 
 class PetMapPage extends StatefulWidget {
-  final String userId;
+  final String? userId;
 
   const PetMapPage({super.key, required this.userId});
 

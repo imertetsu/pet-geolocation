@@ -5,7 +5,8 @@
     <application
         android:label="Patitas News"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="true">
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -53,7 +54,7 @@
                 <!-- ejemplo: https://mi-dominio.com/post/24 -->
                 <data
                     android:scheme="http"
-                    android:host="localhost:8080"
+                    android:host="181.114.109.198"
                     android:pathPrefix="/api/news/public/" />
             </intent-filter>
         </activity>

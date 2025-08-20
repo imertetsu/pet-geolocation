@@ -4,7 +4,7 @@ class Pet {
   final String species;
   final String breed;
   final DateTime birthDate;
-  final String userId;
+  final String? userId;
   bool hasDevice;
 
   Pet({

@@ -9,7 +9,7 @@ import 'register_pet_page.dart';
 import '../devices/associate_device_page.dart';
 
 class PetListPage  extends StatefulWidget {
-  final String userId;
+  final String? userId;
 
   const PetListPage ({super.key, required this.userId});
 

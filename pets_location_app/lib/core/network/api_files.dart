@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 
 class ApiFiles {
-  static const String baseUrl = 'http://10.0.2.2:9090/api';
+  static const String baseUrl = 'http://181.114.109.198:9000/api';
 
   static final Dio dio = Dio(
     BaseOptions(

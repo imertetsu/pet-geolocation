@@ -11,7 +11,7 @@ class FileRemoteDataSource {
   /// Sube una imagen o video al servidor y retorna la URL devuelta por el backend
   Future<String> uploadFile({
     required File file,
-    required String userId,
+    required String? userId,
   }) async {
     final fileName = file.path.split('/').last;
 

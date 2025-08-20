@@ -6,7 +6,7 @@ class PetRemoteDataSource {
 
   PetRemoteDataSource(this._dio);
 
-  Future<List<Pet>> getPetsByUserId(String userId) async {
+  Future<List<Pet>> getPetsByUserId(String? userId) async {
     final response = await _dio.get('/pets/user/$userId');
     return (response.data as List)
         .map((json) => Pet.fromJson(json))
