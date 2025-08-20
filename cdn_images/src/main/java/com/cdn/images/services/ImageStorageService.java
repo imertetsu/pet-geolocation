@@ -17,6 +17,8 @@ public class ImageStorageService {
 
     @Value("${file.upload-dir}")
     private String uploadDir;
+    private final String baseUrl = "http://181.114.109.198:9000";
+    //private String baseUrl = "http://10.0.2.2:9090";
 
     public String storeImage(MultipartFile file, String userId) throws IOException {
         // Ruta del directorio del usuario
@@ -44,8 +46,6 @@ public class ImageStorageService {
         // Guardar archivo
         Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
 
-        // Aquí agregamos el dominio y puerto
-        String baseUrl = "http://10.0.2.2:9090";
         // Retornar URL pública
         return baseUrl + "/images/" + userId + "/" + newFileName;
     }
@@ -56,7 +56,7 @@ public class ImageStorageService {
         }
 
         // Ejemplo: http://10.0.2.2:9090/images/user123/file.png
-        String relativePath = fileUrl.replace("http://10.0.2.2:9090/images/", "");
+        String relativePath = fileUrl.replace(baseUrl+"/images/", "");
         Path targetPath = Paths.get(uploadDir).resolve(relativePath);
 
         Files.deleteIfExists(targetPath);
