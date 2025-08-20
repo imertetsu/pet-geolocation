@@ -137,6 +137,7 @@ class _NewsFeedPageState extends State<NewsFeedPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text('Noticias'),
         actions: [
           IconButton(
@@ -168,7 +169,9 @@ class _NewsFeedPageState extends State<NewsFeedPage> {
         ),
       ),
       floatingActionButton: _userId != null
-          ? FloatingActionButton(
+        ? Padding(
+            padding: const EdgeInsets.only(bottom: 60), // 👈 lo sube 60px
+            child: FloatingActionButton(
               onPressed: () async {
                 await Navigator.push(
                   context,
@@ -178,8 +181,9 @@ class _NewsFeedPageState extends State<NewsFeedPage> {
               },
               child: const Icon(Icons.add),
               tooltip: 'Crear publicación',
-            )
-          : null,
+            ),
+          )
+        : null,
     );
   }
 }

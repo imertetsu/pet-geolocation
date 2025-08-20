@@ -24,16 +24,19 @@ class Comment {
 class Author {
   final String id;
   final String name;
+  final String photoUrl;
 
   Author({
     required this.id,
     required this.name,
+    required this.photoUrl,
   });
 
   factory Author.fromJson(Map<String, dynamic> json) {
     return Author(
       id: json['id'],
       name: json['name'],
+      photoUrl: json['photoUrl']
     );
   }
 }

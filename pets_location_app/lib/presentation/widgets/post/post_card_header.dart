@@ -4,11 +4,13 @@ class PostCardHeader extends StatelessWidget {
   final String authorName;
   final DateTime date;
   final Widget? categoryIcon;
+  final String authorPhotoUrl;
 
   const PostCardHeader({
     super.key,
     required this.authorName,
     required this.date,
+    required this.authorPhotoUrl,
     this.categoryIcon,
   });
 
@@ -22,7 +24,15 @@ class PostCardHeader extends StatelessWidget {
         // Avatar + nombre + fecha
         Row(
           children: [
-            const CircleAvatar(child: Icon(Icons.person)),
+            CircleAvatar(
+              radius: 18,
+              backgroundImage: authorPhotoUrl.isNotEmpty
+                  ? NetworkImage(authorPhotoUrl)
+                  : null,
+              child: authorPhotoUrl.isEmpty
+                  ? const Icon(Icons.person) // fallback
+                  : null,
+            ),
             const SizedBox(width: 10),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,7 +50,6 @@ class PostCardHeader extends StatelessWidget {
             ),
           ],
         ),
-
         // Icono de categoría (opcional)
         if (categoryIcon != null) categoryIcon!,
       ],

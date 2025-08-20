@@ -139,7 +139,15 @@ class _CommentSectionState extends State<CommentSection> {
           const Center(child: CircularProgressIndicator())
         else
           ..._comments.map((comment) => ListTile(
-                leading: const CircleAvatar(child: Icon(Icons.person)),
+                leading: CircleAvatar(
+                  radius: 16,
+                  backgroundImage: comment.author.photoUrl.isNotEmpty
+                      ? NetworkImage(comment.author.photoUrl)
+                      : null,
+                  child: comment.author.photoUrl.isEmpty
+                      ? const Icon(Icons.person)
+                      : null,
+                ),
                 title: Text(comment.author.name),
                 subtitle: Text(comment.content),
                 trailing: Row(
