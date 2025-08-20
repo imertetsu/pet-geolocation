@@ -183,6 +183,7 @@ class _EditPostPageState extends State<EditPostPage> {
                 spacing: 8,
                 runSpacing: 8,
                 children: [
+                  // Imágenes ya existentes
                   for (final img in _images)
                     Stack(
                       children: [
@@ -198,7 +199,7 @@ class _EditPostPageState extends State<EditPostPage> {
                       ],
                     ),
 
-                  // Archivos nuevos que aún no se subieron
+                  // Archivos locales (aún no subidos)
                   for (final file in _filesToUpload)
                     Stack(
                       children: [
@@ -214,18 +215,19 @@ class _EditPostPageState extends State<EditPostPage> {
                       ],
                     ),
 
-                  GestureDetector(
-                    onTap: _pickAndUploadImage,
-                    child: Container(
-                      width: 100,
-                      height: 100,
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.add),
+                  // Botón de agregar imagen (solo si no se pasó el límite de 3)
+                  if (_images.length + _filesToUpload.length < 3)
+                    GestureDetector(
+                      onTap: _pickAndUploadImage,
+                      child: Container(
+                        width: 100,
+                        height: 100,
+                        color: Colors.grey[300],
+                        child: const Icon(Icons.add),
+                      ),
                     ),
-                  )
                 ],
               ),
-
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _isSaving ? null : _saveChanges,

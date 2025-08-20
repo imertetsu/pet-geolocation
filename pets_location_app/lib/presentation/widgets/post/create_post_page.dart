@@ -57,7 +57,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
       if ((_selectedImages.length + images.length) > 3) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Solo puedes subir máximo 3 imágenes/videos'),
+            content: Text('Solo puedes subir máximo 3 imágenes'),
           ),
         );
         return;
@@ -217,14 +217,27 @@ class _CreatePostPageState extends State<CreatePostPage> {
                       scrollDirection: Axis.horizontal,
                       itemCount: _selectedImages.length,
                       itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 8.0),
-                          child: Image.file(
-                            File(_selectedImages[index].path),
-                            width: 100,
-                            height: 100,
-                            fit: BoxFit.cover,
-                          ),
+                        return Stack(
+                          children: [
+                            Image.file(
+                              File(_selectedImages[index].path),
+                              width: 100,
+                              height: 100,
+                              fit: BoxFit.cover,
+                            ),
+                            Positioned(
+                              right: 0,
+                              top: 0,
+                              child: IconButton(
+                                icon: const Icon(Icons.close, color: Colors.red),
+                                onPressed: () {
+                                  setState(() {
+                                    _selectedImages.removeAt(index); // quitar de la lista
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
                         );
                       },
                     ),
