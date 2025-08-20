@@ -1,0 +1,13 @@
+FROM openjdk:17-jdk-alpine
+
+# Copia el archivo JAR generado de tu proyecto a la imagen
+#COPY /root/reserve_spaces/backend_spaces.jar /app/
+COPY /pets-location/build/libs/pets-app-0.0.1.jar /app/
+
+# Define el directorio de trabajo dentro de la imagen
+WORKDIR /app
+
+# Expone el puerto en el que tu aplicación Spring Boot escucha
+EXPOSE 9090
+
+ENTRYPOINT ["java", "-jar", "pets-app-0.0.1.jar"]
