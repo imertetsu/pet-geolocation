@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pets-location
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: pets-location
+  template:
+    metadata:
+      labels:
+        app: pets-location
+    spec:
+      containers:
+        - name: pets-location
+          image: imertetsu/pet-location_service:1.0
+          ports:
+            - containerPort: 9090
+          env:
+            - name: spring.datasource.url
+              value: "jdbc:mysql://mysql:3306/pets_location_db"
+            - name: spring.datasource.username
+              valueFrom:
+                secretKeyRef:
+                  name: pets-location-secret
+                  key: MYSQL_ROOT_USER
+            - name: spring.datasource.password
+              valueFrom:
+                secretKeyRef:
+                  name: pets-location-secret
+                  key: MYSQL_ROOT_PASSWORD
+            - name: spring.mail.username
+              valueFrom:
+                secretKeyRef:
+                  name: pets-location-secret
+                  key: MAIL_USERNAME
+            - name: spring.mail.password
+              valueFrom:
+                secretKeyRef:
+                  name: pets-location-secret
+                  key: MAIL_PASSWORD

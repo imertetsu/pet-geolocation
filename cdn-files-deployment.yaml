@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cdn-files
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cdn-files
+  template:
+    metadata:
+      labels:
+        app: cdn-files
+    spec:
+      containers:
+        - name: cdn-files
+          image: imertetsu/cdn-files_service:1.0
+          ports:
+            - containerPort: 9000
