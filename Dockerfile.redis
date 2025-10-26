@@ -1,0 +1,12 @@
+# Imagen base oficial de Redis (ligera)
+FROM redis:7.2-alpine
+
+LABEL maintainer="tetsu@pets-location" \
+      version="1.0" \
+      description="Custom Redis cache for Pets Location App"
+
+# Exponer el puerto estándar
+EXPOSE 6379
+
+# Comando por defecto
+CMD ["redis-server"]

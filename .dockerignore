@@ -1,0 +1,10 @@
+# .dockerignore
+.git
+.gitignore
+*.log
+*.md
+*.env
+target/
+build/
+docker-compose.yml
+README.md

@@ -1,0 +1,11 @@
+# Imagen base de Mailhog
+FROM mailhog/mailhog:v1.0.1
+
+LABEL maintainer="tetsu@pets-location" \
+      version="1.0" \
+      description="Custom Mailhog SMTP server for Pets Location App"
+
+# Exponer los puertos SMTP (1025) y WebUI (8025)
+EXPOSE 1025 8025
+
+CMD ["MailHog"]

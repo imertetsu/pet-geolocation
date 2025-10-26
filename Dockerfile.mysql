@@ -1,0 +1,10 @@
+FROM mysql:8.3.0
+
+# Variables opcionales (también se pueden usar desde docker-compose)
+ENV MYSQL_DATABASE=${MYSQL_DATABASE}
+ENV MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+
+EXPOSE 3306
+
+# Comando de inicio
+CMD ["mysqld"]
